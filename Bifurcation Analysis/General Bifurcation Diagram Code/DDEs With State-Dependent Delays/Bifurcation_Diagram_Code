@@ -88,7 +88,10 @@ end
 %The variable parameterbd holds the information for the maximum bounds,
 %minimum bounds and max_step (the maximum distance you allow between
 %parameter values in the bifurcation diagrams) of all your variables in the
-%model.
+%model. If there are large gaps between points on your branches, or if 
+%points that are equivalent on your non-trivial and trivial branches are
+%not matching up exactly, you may need to decrease the size of max_step for
+%the parameter you are varying. 
 parameterbd={'max_bound',[indbeta,15;indmuj,1;indmua,1;indNo,1000000;indtau1,15;indtau2,15],...
              'min_bound',[indbeta,0.1;indmuj,0.01;indmua,0.01;indNo,0.1;indtau1,0.01;indtau2,0.01],...
              'max_step',[indbeta, 2;indmuj, 0.2;indmua, 0.2;indNo, 1000;indtau1, 0.2;indtau2, 0.2]};
