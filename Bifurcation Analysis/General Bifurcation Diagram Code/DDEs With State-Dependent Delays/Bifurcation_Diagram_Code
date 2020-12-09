@@ -1,6 +1,6 @@
 %% Bifurcation Diagram Code For DDE System With State-Dependent Delays
 %This code generates a steady state bifurcation diagram for a model with
-%state-dependent delays (as defined by DDE-BIFTOOL in the manual. Sections
+%state-dependent delays (as defined by DDE-BIFTOOL in the manual). Sections
 %1 and 2 require inputs from the user, but section 3 need not be altered.
 
 %% Initial Defintions - things you only need to change as the model changes
