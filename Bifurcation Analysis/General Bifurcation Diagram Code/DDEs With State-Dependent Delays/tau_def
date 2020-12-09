@@ -1,0 +1,7 @@
+function tau=tau_def(ind,xx,par) 
+    if ind ==1
+    tau=par(5); 
+    elseif ind ==2
+    tau=par(5)+ par(6);
+    end 
+end
