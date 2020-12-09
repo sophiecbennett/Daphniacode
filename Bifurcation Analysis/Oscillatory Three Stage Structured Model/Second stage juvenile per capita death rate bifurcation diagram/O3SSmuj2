@@ -1,0 +1,417 @@
+ststNT.kind='stst';
+
+
+ststNT.parameter=[8, 0.3, 0.2, 0.1, 1000, 8,3,4];
+
+
+beta = 8;
+muj1 = 0.3;
+muj2= 0.2;
+mua = 0.1;
+tau1 = 8;
+tau2 = 4;
+No=1000;
+c3=3;
+soldde= dde23(@O3SS,[tau2;tau2+c3;tau2+tau1],[100;100;100],[0,10000],[options],beta, muj1,muj2, mua,tau1,c3,tau2, No);
+J1NT=soldde.y(1,end);
+J2NT=soldde.y(2,end);
+ANT=soldde.y(3,end);
+
+
+ststNT.x=[JNT ; J2NT; ANT];
+
+
+ststNT.stability=[];
+
+
+indbeta=1;
+indmuj1=2;
+indmuj2=3;
+indmua=4;
+indNo=5;
+indtau1=6;
+indc3=7;
+indtau2=8;
+
+
+contpar=indexmuj2;
+
+
+ststNT_branch1 = SetupStst(funcs,'x',[y1ster; y2ster; y3ster],'parameter',stst1.parameter,...
+'contpar',contpar,'max_step',[0,0.1],'min_bound',...
+[contpar 0.01],'max_bound',[contpar 1.2],...
+'newheuristics_tests',0);
+
+
+ststNT_branch1.method.continuation.plot=0;
+
+
+ststNT_branch2 = br_contn(funcs,ststNT_branch1,8000000);
+
+
+ststNT_branch2=br_rvers(ststNT_branch2);
+
+
+ststNT_branch3=br_contn(funcs,ststNT_branch2,1700000000);
+
+
+ststNT_branch4=br_stabl(funcs,ststNT_branch3,0,1);
+
+
+nunst_ststNT=GetStability(ststNT_branch4);
+
+
+
+
+indfold1=find(abs(diff(nunst_ststNT))==1);
+
+
+indhopf1=find(abs(diff(nunst_ststNT))==2);
+
+
+
+
+[PSol1NT,suc1NT]=SetupPsol(funcs,ststNT_branch4,indhopf1,'degree',5, ...
+'intervals',30,'print_residual_info',0,'radius',1e-2, ...
+'hopfcorrection',1);
+
+
+PSol1NT.method.continuation.plot=0;
+
+
+Psol1NT_branch1=br_contn(funcs,PSol1NT,1000);
+
+
+Psol1NT_branch2=br_stabl(funcs,Psol1NT_branch1,0,1);
+
+
+tol=1e-9;
+
+
+nunst_Psol1NT=zeros(length(Psol1NT_branch2.point),1);
+
+
+for i=1:length(Psol1NT_branch2.point)
+
+
+if abs(Psol1NT_branch2.point(i).stability.mu(1))>1+tol
+nunst_Psol1NT(i)=1;
+else
+nunst_Psol1NT(i)=0;
+end
+end
+
+
+
+
+ststT.kind='stst';
+
+
+ststT.parameter=[8, 0.3,0.99999, 0.1, 1000, 8,3,4];
+
+
+ststT.x=[0 ; 0; 0];
+
+
+ststNT.stability=[];
+
+
+
+
+ststT_branch1 = SetupStst(funcs,'x',ststT.x,'parameter',stst2.parameter,...
+'contpar',contpar,'max_step',[0,0.1],'min_bound',...
+[contpar 0.01],'max_bound',[contpar 1.2],...
+'newheuristics_tests',0);
+
+
+ststT_branch1 .method.continuation.plot=0;
+
+
+ststT_branch2 = br_contn(funcs,ststT_branch1 ,80000000);
+
+
+ststT_branch2=br_rvers(ststT_branch2);
+
+
+ststT_branch3=br_contn(funcs,ststT_branch2,80000000);
+
+
+ststT_branch4=br_stabl(funcs,ststT_branch3,0,1);
+
+
+nunst_ststT=GetStability(ststT_branch4);
+
+
+
+
+indfold2=find(abs(diff(nunst_ststT))==1);
+
+
+indhopf2=find(abs(diff(nunst_ststT))==2);
+
+
+
+
+[PSol1T,suc1T] = SetupPsol(funcs, ststT_branch4, indhopf2(1),...
+'degree',5,'intervals',30,...
+'print_residual_info',0,'radius',1e-2,'hopfcorrection',1);
+
+
+[PSol2T,suc2T] = SetupPsol(funcs, ststT_branch4, indhopf2(2),...
+'degree',5,'intervals',30,...
+'print_residual_info',0,'radius',1e-2,'hopfcorrection',1);
+
+
+[PSol3T,suc3T] = SetupPsol(funcs, ststT_branch4, indhopf2(3),...
+'degree',5,'intervals',30,...
+'print_residual_info',0,'radius',1e-2,'hopfcorrection',1);
+
+
+[PSo4T,suc4T] = SetupPsol(funcs, ststT_branch4, indhopf2(4),...
+'degree',5,'intervals',30,...
+'print_residual_info',0,'radius',1e-2,'hopfcorrection',1);
+
+
+PSol1T.method.continuation.plot=0;
+
+
+PSol2T.method.continuation.plot=0;
+
+
+PSol3T.method.continuation.plot=0;
+
+
+PSol4T.method.continuation.plot=0;
+
+
+Psol1T_branch1=br_contn(funcs,PSol1T,1000);
+
+
+Psol2T_branch1=br_contn(funcs,PSol2T,1000);
+
+
+Psol3T_branch1=br_contn(funcs,PSol3T,1000);
+
+
+Psol4T_branch1=br_contn(funcs,PSol4T,1000);
+
+
+Psol1T_branch2=br_stabl(funcs,Psol1T_branch1,0,1);
+
+
+Psol2T_branch2=br_stabl(funcs,Psol2T_branch1,0,1);
+
+
+Psol3T_branch2=br_stabl(funcs,Psol3T_branch1,0,1);
+
+
+Psol4T_branch2=br_stabl(funcs,Psol4T_branch1,0,1);
+
+
+tol=1e-9;
+
+
+nunst_Psol1T=zeros(length(Psol1T_branch2.point),1);
+
+
+for i=1:length(Psol1T_branch2.point)
+
+
+if abs(Psol1T_branch2.point(i).stability.mu(1))>1+tol
+nunst_Psol1T(i)=1;
+else
+nunst_Psol1T(i)=0;
+end
+end
+
+
+nunst_Psol2T=zeros(length(Psol2T_branch2.point),1);
+
+
+for i=1:length(Psol2T_branch2.point)
+
+
+if abs(Psol2T_branch2.point(i).stability.mu(1))>1+tol
+nunst_Psol2T(i)=1;
+else
+nunst_Psol2T(i)=0;
+end
+end
+
+
+nunst_Psol3T=zeros(length(Psol3T_branch2.point),1);
+
+
+for i=1:length(Psol3T_branch2.point)
+
+
+if abs(Psol3T_branch2.point(i).stability.mu(1))>1+tol
+nunst_Psol3T(i)=1;
+else
+nunst_Psol3T(i)=0;
+end
+end
+
+
+nunst_Psol4T=zeros(length(Psol4T_branch2.point),1);
+
+
+for i=1:length(Psol4T_branch2.point)
+
+
+if abs(Psol4T_branch2.point(i).stability.mu(1))>1+tol
+nunst_Psol4T(i)=1;
+else
+nunst_Psol4T(i)=0;
+end
+end
+
+
+xm.field='parameter';
+xm.subfield='';
+xm.row=1;
+xm.col=contpar;
+xm.func='';
+
+
+%You change this value based on what stage of the population you would like
+%to plot a bifurcation diagram for.
+
+
+dependentvariable=1;
+
+
+magstst.field='x';
+magstst.subfield='';
+magstst.row=dependentvariable;
+magstst.col=1;
+magstst.func='';
+
+
+minpsol.field='profile';
+minpsol.subfield='';
+minpsol.row=dependentvariable;
+minpsol.col='all';
+minpsol.func='min';
+
+
+maxpsol.field='profile';
+maxpsol.subfield='';
+maxpsol.row=dependentvariable;
+maxpsol.col='all';
+maxpsol.func='max';
+
+
+ststNTxm=br_measr(ststNT_branch4,xm);
+ststNTym=br_measr(ststNT_branch4,magstst);
+
+
+Psol1NTxm=br_measr(Psol1NT_branch2,xm);
+Psol1NTminym=br_measr(Psol1NT_branch2,minpsol);
+Psol1NTmaxym=br_measr(Psol1NT_branch2,maxpsol);
+
+
+ststTxm=br_measr(ststT_branch4,xm);
+ststTym=br_measr(ststT_branch4,magstst);
+
+
+Psol1Txm=br_measr(Psol1T_branch2,xm);
+Psol1Tminym=br_measr(Psol1T_branch2,minpsol);
+Psol1Tmaxym=br_measr(Psol1T_branch2,maxpsol);
+
+
+Psol2Txm=br_measr(Psol2T_branch2,xm);
+Psol2Tminym=br_measr(Psol2T_branch2,minpsol);
+Psol2Tmaxym=br_measr(Psol2T_branch2,maxpsol);
+
+
+Psol3Txm=br_measr(Psol3T_branch2,xm);
+Psol3Tminym=br_measr(Psol3T_branch2,minpsol);
+Psol3Tmaxym=br_measr(Psol3T_branch2,maxpsol);
+
+
+Psol4Txm=br_measr(Psol4T_branch2,xm);
+Psol4Tminym=br_measr(Psol4T_branch2,minpsol);
+Psol4Tmaxym=br_measr(Psol4T_branch2,maxpsol);
+
+
+
+
+figure;
+
+
+plot(ststNTxm(nunst_ststNT==0),ststNTym(nunst_ststNT==0),'g.',...
+ststNTxm(nunst_ststNT>=1),ststNTym(nunst_ststNT>=1),'r.',...
+ststNTxm(indfold1),ststNTym(indfold1),'mo',...
+ststNTxm(indhopf1),ststNTym(indhopf1), 'bs');
+
+
+hold on
+
+
+plot(Psol1NTxm(nunst_Psol1NT==0),Psol1NTminym(nunst_Psol1NT==0),'g--',...
+Psol1NTxm(nunst_Psol1NT>=1),Psol1NTminym(nunst_Psol1NT>=1),'r--');
+
+
+plot(Psol1NTxm(nunst_Psol1NT==0),Psol1NTmaxym(nunst_Psol1NT==0),'g--',...
+Psol1NTxm(nunst_Psol1NT>=1),Psol1NTmaxym(nunst_Psol1NT>=1),'r--');
+
+
+plot(ststTxm(nunst_ststT==0),ststTym(nunst_ststT==0),'g.',...
+ststTxm(nunst_ststT>=1),ststTym(nunst_ststT>=1),'r.',...
+ststTxm(indfold2),ststTym(indfold2),'mo',...
+ststTxm(indhopf2),ststTym(indhopf2), 'bs');
+
+
+plot(Psol1Txm(nunst_Psol1T==0),Psol1Tminym(nunst_Psol1T==0),'g--',...
+Psol1Txm(nunst_Psol1T>=1),Psol1Tminym(nunst_Psol1T>=1),'r--');
+
+
+plot(Psol1Txm(nunst_Psol1T==0),Psol1Tmaxym(nunst_Psol1T==0),'g--',...
+Psol1Txm(nunst_Psol1T>=1),Psol1Tmaxym(nunst_Psol1T>=1),'r--');
+
+
+plot(Psol2Txm(nunst_Psol2T==0),Psol2Tminym(nunst_Psol2T==0),'g--',...
+Psol2Txm(nunst_Psol2T>=1),Psol2Tminym(nunst_Psol2T>=1),'r--');
+
+
+plot(Psol2Txm(nunst_Psol2T==0),Psol2Tmaxym(nunst_Psol2T==0),'g--',...
+Psol2Txm(nunst_Psol2T>=1),Psol2Tmaxym(nunst_Psol2T>=1),'r--');
+
+
+plot(Psol3Txm(nunst_Psol3T==0),Psol3Tminym(nunst_Psol3T==0),'g--',...
+Psol3Txm(nunst_Psol3T>=1),Psol3Tminym(nunst_Psol3T>=1),'r--');
+
+
+plot(Psol3Txm(nunst_Psol3T==0),Psol3Tmaxym(nunst_Psol3T==0),'g--',...
+Psol3Txm(nunst_Psol3T>=1),Psol3Tmaxym(nunst_Psol3T>=1),'r--');
+
+
+plot(Psol4Txm(nunst_Psol4T==0),Psol4Tminym(nunst_Psol4T==0),'g--',...
+Psol4Txm(nunst_Psol4T>=1),Psol4Tminym(nunst_Psol4T>=1),'r--');
+
+
+plot(Psol4Txm(nunst_Psol4T==0),Psol4Tmaxym(nunst_Psol4T==0),'g--',...
+Psol4Txm(nunst_Psol4T>=1),Psol4Tmaxym(nunst_Psol4T>=1),'r--');
+
+
+hold off
+
+
+xlabel('\mu_{J_{2}}');
+
+
+%You need to change this depending on what variable you would like to plot.
+
+
+ylabel('J^*');
+
+
+stst_lgtext={'Stable','Unstable','Fold','Hopf'};
+
+
+legend(stst_lgtext,"Location","northwest","FontSize",6)
+
+
+%You need to change this depending on what variable you would like to plot.
+title('Steady State Bifurcation Diagram \mu_{J_{2}}')
