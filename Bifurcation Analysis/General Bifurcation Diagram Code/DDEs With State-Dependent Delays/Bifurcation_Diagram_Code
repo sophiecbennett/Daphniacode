@@ -23,7 +23,11 @@ sys_ntau=@()2;
 %You need to define a separate function for the values of your delays. This
 %function for this model is given in the function file sd_tauSB3 (given
 %with this code in the GitHub folder).
-funcs=set_funcs('sys_rhs',rhs,'sys_tau',@tau_def,'sys_ntau',@()2,'x_vectorized',false) %#ok<NOPTS>
+
+%Definition of your functions. If you decide to code the rhs derivative 
+%function and the delay derivative function for your model, you need to add 
+%sys_deri and sys_dtau below with your derivative functions' handles.
+funcs=set_funcs('sys_rhs',rhs,'sys_tau',@tau_def,'sys_ntau',sys_ntau,'x_vectorized',false) %#ok<NOPTS>
 
 %Create variables for the indices of all your parameters.
 indbeta=1;
@@ -52,14 +56,15 @@ ststNT.parameter=[2, 0.3, 0.1, 1000, 5,4,9];
 %Now define the size of that non-trivial steady state by running the dde23
 %solver on the model (making sure it runs to a point that yields the
 %non-trivial steady state) and extract the final values from the solution
-%vectors.
+%vectors. You need to define the function in a separate file, given in this 
+%instance by the file called modelstatedependentdelays.
 beta = 2;
 muj = 0.3;
 mua = 0.1;
 tau1 = 5;
 tau2 = 4;
 No=1000;
-soldde= dde23(@ddex1model9,[tau2;tau2+tau1],[100;100],[0,10000],[],beta,muj,mua,tau1,tau2,No);
+soldde= dde23(@modelstatedependentdelays,[tau2;tau2+tau1],[100;100],[0,10000],[],beta,muj,mua,tau1,tau2,No);
 sterNT=zeros(length(soldde.y(:,1)),1);
 for i=1:length(soldde.y(:,1))
     sterNT(i,1)=soldde.y(i,end);
@@ -79,7 +84,7 @@ mua = 0.1;
 tau1 = 5;
 tau2 = 4;
 No=1000;
-soldde= dde23(@ddex1model9,[tau2;tau2+tau1],[100;100],[0,10000],[],beta,muj,mua,tau1,tau2,No);
+soldde= dde23(@modelstatedependentdelays,[tau2;tau2+tau1],[100;100],[0,10000],[],beta,muj,mua,tau1,tau2,No);
 sterT=zeros(length(soldde.y(:,1)),1);
 for i=1:length(soldde.y(:,1))
     sterT(i,1)=soldde.y(i,end);
