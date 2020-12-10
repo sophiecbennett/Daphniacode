@@ -1,0 +1,319 @@
+%% Bifurcation Diagram Code For DDE System With State-Dependent Delays
+%This code generates a steady state bifurcation diagram for a model with
+%constant delays (as defined by DDE-BIFTOOL in the manual). Sections
+%1 and 2 require inputs from the user, but section 3 need not be altered.
+
+%% Initial Defintions - things you only need to change as the model changes
+
+clear
+close all
+addpath('../../ddebiftool',...
+    '../../ddebiftool_extra_psol',...
+    '../../ddebiftool_extra_nmfm/',...
+    '../../ddebiftool_utilities');
+
+%This is wheer you define your model. You have to define it in this form
+%with xx and par for Biftool to be able to process.
+rhs=@(xx,par)[...    
+par(1)*xx(2,1)*(1-((xx(1,1)+xx(2,1))/par(2)))-(par(1)*xx(2,2)*(1-((xx(1,2)+xx(2,2))/par(2)))*exp(-par(3)*par(4)))-(par(3)*xx(1,1))
+        (par(1)*xx(2,2)*(1-((xx(1,2)+xx(2,2))/par(2)))*exp(-par(3)*par(4)))-(par(5)*xx(2,1))];
+
+%If the location of your delay in your parameter list changes, you need to
+%change the value of sys_tau. This function gives the index/indices of your 
+%delays within your parameter vector as given in your model definition 
+%above. If the location of your delay in your parameter list changes, you 
+%need to change the value of sys_tau.
+sys_tau=@()[4];
+
+%Definition of your functions. If you decide to code the rhs derivative 
+%function for your model, you need to add sys_deri below with your 
+%derivative function handle.
+funcs=set_funcs(...
+    'sys_rhs',rhs,...
+    'sys_tau',sys_tau) %#ok<NOPTS>
+
+%Create variables for the indices of all your parameters.
+indbeta=1;
+indK=2;
+indmuj=3;
+indtau=4;
+indmua=5;
+
+%% Bifurcation Diagram specific inputs
+%The variables in this section are those that change the things you plot in
+%the bifurcation diagram.
+
+%contpar is the index of the parameter you would like to vary to create the
+%bifurcation diagram. Use the parameter index variables you created above
+%to do this.
+contpar=indbeta;
+
+%To generate the non-trivial steady state branch for the bifurcation
+%diagram, you need an initial (strictly) non-trivial steady state of the
+%system ststNT.parameter is the variable in which you state the parameter
+%values that give this non-trivial steady state. Make sure you state them
+%in the same order you stated in the parameter vector.
+ststNT.parameter=[20,1000,0.5,5,0.3];
+
+%Now define the size of that non-trivial steady state by running the dde23
+%solver on the model (making sure it runs to a point that yields the
+%non-trivial steady state) and extract the final values from the solution
+%vectors. You need to define the function in a separate file, given in this
+%instance by the file called modelconstantdelays.
+beta = 20;
+muj = 0.5;
+mua = 0.3;
+tau = 5;
+K=1000;
+soldde= dde23(@modelconstantdelays,tau,[10;10],[0,1000],[],beta,muj,mua,tau,K);
+sterNT=zeros(length(soldde.y(:,1)),1);
+for i=1:length(soldde.y(:,1))
+    sterNT(i,1)=soldde.y(i,end);
+end
+
+%Set the parameters that give you a trivial steady state solution. You must
+%change only the value of the parameter you are varying to create the 
+%bifurcation diagram to do this. 
+ststT.parameter=[0.5,1000,0.5,5,0.3];
+
+%Now define the size of that trivial steady state. You can do this by
+%running the solver (as beloew) or simply define a variable sterT = [...]
+%if you know what the trivial state is straight away.
+beta = 0.5;
+muj = 0.5;
+mua = 0.3;
+tau = 5;
+K=1000;
+soldde= dde23(@modelconstantdelays,tau,[10;10],[0,1000],[],beta,muj,mua,tau,K);
+sterT=zeros(length(soldde.y(:,1)),1);
+for i=1:length(soldde.y(:,1))
+    sterT(i,1)=soldde.y(i,end);
+end
+
+%The variable parameterbd holds the information for the maximum bounds,
+%minimum bounds and max_step (the maximum distance you allow between
+%parameter values in the bifurcation diagrams) of all your variables in the
+%model. If there are large gaps between points on your branches, or if 
+%points that are equivalent on your non-trivial and trivial branches are
+%not matching up exactly, you may need to decrease the size of max_step for
+%the parameter you are varying. 
+parameterbd={'max_bound',[indbeta,30;indK,100000;indmuj,1;indtau,15;indmua,1],...
+             'min_bound',[indbeta,0.01;indK,10;indmuj,0.001;indtau,0.001;indmua,0.001],...
+             'max_step',[indbeta,5;indK,1000;indmuj,0.5;indtau,1;indmua,0.5]};
+
+%% You do not need to input any information for this final section - now click run!
+for i=1:length(soldde.y(:,1))
+    measures(i).xmstst.field='parameter';
+    measures(i).xmstst.subfield='';
+    measures(i).xmstst.row=1;
+    measures(i).xmstst.col=contpar;
+    measures(i).xmstst.func='';
+    
+    measures(i).ymstst.field='x';
+    measures(i).ymstst.subfield='';
+    measures(i).ymstst.row=i;
+    measures(i).ymstst.col=1;
+    measures(i).ymstst.func='';
+    
+    measures(i).xmPsolmin.field='parameter';
+    measures(i).xmPsolmin.subfield='';
+    measures(i).xmPsolmin.row=1;
+    measures(i).xmPsolmin.col=contpar;
+    measures(i).xmPsolmin.func='';
+    
+    measures(i).ymPsolmin.field='profile';
+    measures(i).ymPsolmin.subfield='';
+    measures(i).ymPsolmin.row=i;
+    measures(i).ymPsolmin.col='all';
+    measures(i).ymPsolmin.func='min';
+    
+    measures(i).xmPsolmax.field='parameter';
+    measures(i).xmPsolmax.subfield='';
+    measures(i).xmPsolmax.row=1;
+    measures(i).xmPsolmax.col=contpar;
+    measures(i).xmPsolmax.func='';
+    
+    measures(i).ymPsolmax.field='profile';
+    measures(i).ymPsolmax.subfield='';
+    measures(i).ymPsolmax.row=i;
+    measures(i).ymPsolmax.col='all';
+    measures(i).ymPsolmax.func='max';
+end
+
+ststNT_branch0 = SetupStst(funcs,'x',sterNT,'parameter',ststNT.parameter,...
+'contpar',contpar,'newheuristics_tests',0,parameterbd{:});
+
+ststNT_branch0.method.continuation.plot=0;
+[ststNT_branch1] = br_contn(funcs,ststNT_branch0,1e10);
+[ststNT_branch1]=br_rvers(ststNT_branch1);
+[ststNT_branch1]=br_contn(funcs,ststNT_branch1,1e10);
+ststNT_branch2=br_stabl(funcs,ststNT_branch1,0,1);
+
+nunstst_NT=GetStability(ststNT_branch2);
+
+for j=1:length(soldde.y(:,1))
+    NTmainbranch(j).xm=br_measr(ststNT_branch2,measures(j).xmstst);
+    NTmainbranch(j).ym=br_measr(ststNT_branch2,measures(j).ymstst);
+end
+
+indfoldNT=find(abs(diff(nunstst_NT))==1);
+
+indhopfNT=find(abs(diff(nunstst_NT))==2);
+
+numberofhopfsNT=length(indhopfNT);
+
+NTsuccessvector=zeros(1,numberofhopfsNT);
+
+for i=1:numberofhopfsNT
+        [InitialNTPsols,NTsuccessvector(i)]=SetupPsol(funcs,ststNT_branch2,indhopfNT(i),'degree',5,'intervals',30,...
+         'print_residual_info',0,'radius',1e-2,'hopfcorrection',1);       
+end 
+
+tol=1e-9;
+
+numberofsuccessfulhopfsNT=length(NTsuccessvector);
+
+for i=1:numberofsuccessfulhopfsNT
+    
+    PsolNT(i).initial=SetupPsol(funcs,ststNT_branch2,indhopfNT(i),'degree',5,'intervals',30,...
+         'print_residual_info',0,'radius',1e-2,'hopfcorrection',1);
+    PsolNT(i).initial.method.continuation.plot=0;
+    PsolNT(i).full=br_contn(funcs,PsolNT(i).initial,1e10);
+    PsolNT(i).fullwithstability=br_stabl(funcs, PsolNT(i).full,0,1);
+    PsolNT(i).nunPsol=zeros(length(PsolNT(i).fullwithstability.point),1);
+            for j=1:length(PsolNT(i).fullwithstability.point)
+               
+              if abs(PsolNT(i).fullwithstability.point(j).stability.mu(1))>1+tol
+                  PsolNT(i).nunPsol(j)=1;
+              else
+                  PsolNT(i).nunPsol(j)=0;
+              end
+            end
+            
+            for j=1:length(soldde.y(:,1))
+                PsolNT(i).PsolbranchDP(j).xmin=br_measr(PsolNT(i).fullwithstability,measures(j).xmPsolmin);
+                PsolNT(i).PsolbranchDP(j).ymin=br_measr(PsolNT(i).fullwithstability,measures(j).ymPsolmin);
+                PsolNT(i).PsolbranchDP(j).xmax=br_measr(PsolNT(i).fullwithstability,measures(j).xmPsolmax);
+                PsolNT(i).PsolbranchDP(j).ymax=br_measr(PsolNT(i).fullwithstability,measures(j).ymPsolmax);
+            end
+    
+end
+
+ststT_branch0 = SetupStst(funcs,'x',[0;0],'parameter',ststT.parameter,...
+    'contpar',contpar,'newheuristics_tests',0,parameterbd{:});
+
+ststT_branch0.method.continuation.plot=0;
+[ststT_branch1] = br_contn(funcs,ststT_branch0,1e10);
+[ststT_branch1]=br_rvers(ststT_branch1);
+[ststT_branch1,s,f,r]=br_contn(funcs,ststT_branch1,1e10);
+ststT_branch2=br_stabl(funcs,ststT_branch1,0,1);
+
+nunstst_T=GetStability(ststT_branch2);
+
+indfoldT=find(abs(diff(nunstst_T))==1);
+
+indhopfT=find(abs(diff(nunstst_T))==2);
+
+for j=1:length(soldde.y(:,1))
+    Tmainbranch(j).xm=br_measr(ststT_branch2,measures(j).xmstst);
+    Tmainbranch(j).ym=br_measr(ststT_branch2,measures(j).ymstst);
+end
+
+numberofhopfsT = length(indhopfT);
+
+Tsuccessvector=zeros(1,numberofhopfsT);
+
+for i=1:numberofhopfsT
+        [InitialTPsols,Tsuccessvector(i)]=SetupPsol(funcs,ststT_branch2,indhopfT(i),'degree',5,'intervals',30,...
+         'print_residual_info',0,'radius',1e-2,'hopfcorrection',1);       
+end 
+
+numberofsuccessfulhopfsT=length(Tsuccessvector);
+
+for i=1:numberofsuccessfulhopfsT
+    
+    PsolT(i).initial=SetupPsol(funcs,ststT_branch2,indhopfT(i),'degree',5,'intervals',30,...
+         'print_residual_info',0,'radius',1e-2,'hopfcorrection',1);
+    PsolT(i).initial.method.continuation.plot=0;
+    PsolT(i).full=br_contn(funcs,PsolT(i).initial,1e10);
+    PsolT(i).fullwithstability=br_stabl(funcs, PsolT(i).full,0,1);
+    PsolT(i).nunPsol=zeros(length(PsolT(i).fullwithstability.point),1);
+        for j=1:length(PsolT(i).fullwithstability.point)
+               
+              if abs(PsolT(i).fullwithstability.point(j).stability.mu(1))>1+tol
+                  PsolT(i).nunPsol(j)=1;
+              else
+                  PsolT(i).nunPsol(j)=0;
+              end
+        end
+        for j=1:length(soldde.y(:,1))
+                PsolT(i).PsolbranchDP(j).xmin=br_measr(PsolT(i).fullwithstability,measures(j).xmPsolmin);
+                PsolT(i).PsolbranchDP(j).ymin=br_measr(PsolT(i).fullwithstability,measures(j).ymPsolmin);
+                PsolT(i).PsolbranchDP(j).xmax=br_measr(PsolT(i).fullwithstability,measures(j).xmPsolmax);
+                PsolT(i).PsolbranchDP(j).ymax=br_measr(PsolT(i).fullwithstability,measures(j).ymPsolmax);
+        end
+end
+
+%There are a few model specific details you can change is this seciton as
+%detailed below. 
+
+close all;clc;
+fig = figure;
+
+for j=1:length(soldde.y(:,1))
+    
+    subplot(1,length(soldde.y(:,1)),j);
+    
+plot(NTmainbranch(j).xm(nunstst_NT==0),NTmainbranch(j).ym(nunstst_NT==0),'g.',...
+     NTmainbranch(j).xm(nunstst_NT>=1),NTmainbranch(j).ym(nunstst_NT>=1),'r.',...
+     NTmainbranch(j).xm(indfoldNT),NTmainbranch(j).ym(indfoldNT),'mo',... 
+     NTmainbranch(j).xm(indhopfNT),NTmainbranch(j).ym(indhopfNT), 'bs')
+
+hold on
+
+for i=1:numberofsuccessfulhopfsNT
+
+plot(PsolNT(i).PsolbranchDP(j).xmin(PsolNT(i).nunPsol==0),PsolNT(i).PsolbranchDP(j).ymin(PsolNT(i).nunPsol==0),'g--',...
+    PsolNT(i).PsolbranchDP(j).xmin(PsolNT(i).nunPsol>=1),PsolNT(i).PsolbranchDP(j).ymin(PsolNT(i).nunPsol>=1),'r--');
+
+plot(PsolNT(i).PsolbranchDP(j).xmax(PsolNT(i).nunPsol==0),PsolNT(i).PsolbranchDP(j).ymax(PsolNT(i).nunPsol==0),'g--',...
+    PsolNT(i).PsolbranchDP(j).xmax(PsolNT(i).nunPsol>=1),PsolNT(i).PsolbranchDP(j).ymax(PsolNT(i).nunPsol>=1),'r--');
+
+end    
+ 
+plot(Tmainbranch(j).xm(nunstst_T==0),Tmainbranch(j).ym(nunstst_T==0),'g.',...
+     Tmainbranch(j).xm(nunstst_T>=1),Tmainbranch(j).ym(nunstst_T>=1),'r.',...
+     Tmainbranch(j).xm(indfoldT),Tmainbranch(j).ym(indfoldT),'mo',... 
+     Tmainbranch(j).xm(indhopfT),Tmainbranch(j).ym(indhopfT), 'bs')
+
+for i=1:numberofsuccessfulhopfsT
+
+plot(PsolT(i).PsolbranchDP(j).xmin(PsolT(i).nunPsol==0),PsolT(i).PsolbranchDP(j).ymin(PsolT(i).nunPsol==0),'g--',...
+    PsolT(i).PsolbranchDP(j).xmin(PsolT(i).nunPsol>=1),PsolT(i).PsolbranchDP(j).ymin(PsolT(i).nunPsol>=1),'r--');
+
+plot(PsolT(i).PsolbranchDP(j).xmax(PsolT(i).nunPsol==0),PsolT(i).PsolbranchDP(j).ymax(PsolT(i).nunPsol==0),'g--',...
+    PsolT(i).PsolbranchDP(j).xmax(PsolT(i).nunPsol>=1),PsolT(i).PsolbranchDP(j).ymax(PsolT(i).nunPsol>=1),'r--');
+
+end  
+
+ytickformat('%.2f')
+hold off
+
+  
+ylabel(sprintf('Dependent variable %d',j))
+
+if isempty(indhopfNT) && isempty(indhopfT)
+    stst_lgtext={'Stable','Unstable','Fold'};
+elseif isempty(indfoldNT) && isempty(indfoldT)
+    stst_lgtext={'Stable','Unstable','Hopf'};
+elseif isempty(indhopfNT) && isempty(indfoldNT) && isempty(indhopfT) && isempty(indfoldT)
+    stst_lgtext={'Stable','Unstable'};   
+else
+    stst_lgtext={'Stable','Unstable','Fold','Hopf'};
+end
+end
+   
+han=axes(fig,'visible','off'); 
+han.Title.Visible='on';
+han.XLabel.Visible='on';
+xlabel(han,sprintf('Parameter %d',contpar));
