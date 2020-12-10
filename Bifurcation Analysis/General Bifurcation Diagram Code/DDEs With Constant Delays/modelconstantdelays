@@ -1,0 +1,7 @@
+function dNdt = modelconstantdelays(t,y,Z, beta, muj, mua,tau,K)
+
+ylag1 = Z(:,1);
+
+dNdt =[beta*y(2)*(1-((y(1)+y(2))/K))-(beta*ylag1(2)*(1-((ylag1(1)+ylag1(2))/K))*exp(-muj*tau))-(muj*y(1))
+        (beta*ylag1(2)*(1-((ylag1(1)+ylag1(2))/K))*exp(-muj*tau))-(mua*y(2))];
+    
