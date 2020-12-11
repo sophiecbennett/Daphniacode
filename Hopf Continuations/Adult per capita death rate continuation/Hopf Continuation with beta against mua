@@ -1,0 +1,99 @@
+%We begin in the same way as we did in the bifurcation diagram code, we
+%have to generate a non-trivial steady state branch via the variation of
+%beta.
+
+
+stst1.parameter=[2, 0.3, 0.1, 1000, 5,4];
+
+
+indbeta=1;
+
+
+stst1.parameter=[2, 0.3, 0.1, 1000, 5,4];
+
+
+indbeta=1;
+indmuj=2;
+indmua=3;
+indNo=4;
+indtau1=5;
+indtau2=6;
+
+
+beta = 2;
+muj = 0.3;
+mua = 0.1;
+tau1 = 5;
+tau2 = 4;
+No=1000;
+soldde= dde23(@ddex1model9,[tau2;tau2+tau1],[100;100],[0,10000],[],beta,muj,mua,tau1,tau2,No);
+y1ster=soldde.y(1,end);
+y2ster=soldde.y(2,end);
+
+
+contpar=indbeta;
+
+
+% In this instance, instead of creating the branch with just the
+% information for beta in, we create the branch with this and the
+% information for the parameter we create the continuation with too.
+
+
+[stst1_branch0,suc1] = SetupStst(funcs,'x',[y1ster; y2ster],'parameter',stst1.parameter,...
+'contpar',contpar,'newheuristics_tests',0,'max_bound',[indbeta,15],...
+'min_bound',[indbeta,0.1],...
+'max_step',[indbeta, 2]);
+
+
+stst1_branch0.method.continuation.plot=0;
+
+
+[stst1_branch1] = br_contn(funcs,stst1_branch0,800000);
+
+
+[stst1_branch1]=br_rvers(stst1_branch1);
+
+
+[stst1_branch1,~,~,~]=br_contn(funcs,stst1_branch1,17000000);
+
+
+stst1_branch2=br_stabl(funcs,stst1_branch1,0,1);
+
+
+nunst1_stst2=GetStability(stst1_branch2);
+
+
+indhopf1=find(abs(diff(nunst1_stst2))==2);
+
+
+%This is how we generate the Hopf continuation. I took this code directly
+%from the cusp demo documnetation online. Ensuring 'plot' takes the value 1 
+%means the continuation plot without you having to define plotting 
+%measures. 
+
+
+[hopf_branch, suc] = SetupHopf(funcs, stst1_branch2, indhopf1, 'contpar', [indmua indbeta], 'dir', indbeta, 'step', 0.001);
+
+
+hopf_branch.parameter.min_bound=[indbeta,0.1;indmua,0.01];
+hopf_branch.parameter.max_bound=[indbeta,15; indmua,1];
+hopf_branch.parameter.max_step=[indbeta, 2 ;indmua,0.005];
+
+
+hopf_branch.method.continuation.plot=1;
+
+
+figure;
+[hopf_branch,s,f,r]=br_contn(funcs,hopf_branch,300);
+hopf_branch = br_rvers(hopf_branch);
+[hopf_branch,s,f,r]=br_contn(funcs,hopf_branch,300);
+
+
+ylabel('\beta');
+
+
+xlabel('\mu_{A}');
+
+
+title('Continuation of Hopf Bifurctaion for Oscillatory Two Stage Structured Model',"FontSize",8);
+
