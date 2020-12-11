@@ -1,0 +1,355 @@
+classdef App2 < matlab.apps.AppBase
+
+
+% Properties that correspond to app components
+properties (Access = public)
+UIFigure matlab.ui.Figure
+DaphniaWastewaterManagementLabel matlab.ui.control.Label
+Percapitabirthrate1timeEditFieldLabel matlab.ui.control.Label
+Percapitabirthrate1timeEditField matlab.ui.control.NumericEditField
+Percapitajuveniledeathrate1timeEditFieldLabel matlab.ui.control.Label
+Percapitajuveniledeathrate1timeEditField matlab.ui.control.NumericEditField
+Percapitaadultdeathrate1timeEditFieldLabel matlab.ui.control.Label
+Percapitaadultdeathrate1timeEditField matlab.ui.control.NumericEditField
+MaximalpopulationsizenumbervolumeEditFieldLabel matlab.ui.control.Label
+MaximalpopulationsizenumbervolumeEditField matlab.ui.control.NumericEditField
+InitialjuvenilepopulationnumbervolumeEditFieldLabel matlab.ui.control.Label
+InitialjuvenilepopulationnumbervolumeEditField matlab.ui.control.NumericEditField
+InitialadultpopulationnumbervolumeEditFieldLabel matlab.ui.control.Label
+InitialadultpopulationnumbervolumeEditField matlab.ui.control.NumericEditField
+DaysafterwhichDaphniasizeistobecalculatetimeLabel matlab.ui.control.Label
+DaysafterwhichDaphniasizeistobecalculatetimeEditField matlab.ui.control.NumericEditField
+SizeofDaphniapopulationnumbervolumeEditFieldLabel matlab.ui.control.Label
+SizeofDaphniapopulationnumbervolumeEditField matlab.ui.control.NumericEditField
+WaterqualitythresholdnumbervolumeEditFieldLabel matlab.ui.control.Label
+WaterqualitythresholdnumbervolumeEditField matlab.ui.control.NumericEditField
+DayatwhichDaphniasizedecreasesbelowthresholdtimeEditFieldLabel matlab.ui.control.Label
+DayatwhichDaphniasizedecreasesbelowthresholdtimeEditField matlab.ui.control.NumericEditField
+CalculateButton matlab.ui.control.Button
+DoesDaphniapopulationsizedecreasebelowthresholdEditFieldLabel matlab.ui.control.Label
+DoesDaphniapopulationsizedecreasebelowthresholdEditField matlab.ui.control.EditField
+InputsLabel matlab.ui.control.Label
+OutputsLabel matlab.ui.control.Label
+UIAxes matlab.ui.control.UIAxes
+end
+
+
+
+
+
+methods (Access = private)
+
+function dNdt = O2SS(app,t,y,Z, beta, muj, mua,tau1,tau2, No)
+
+ylag1 = Z(:,1);
+
+ylag2 = Z(:,2);
+
+dNdt =[(beta*ylag1(2)*exp(-((ylag1(1)+ylag1(2))/(No)))*exp(-mua*tau2))-(beta*ylag2(2)*exp(-((ylag2(1)+ylag2(2))/(No)))*exp(-mua*tau2)*exp(-muj*tau1))-(muj*y(1))
+(beta*ylag2(2)*exp(-((ylag2(1)+ylag2(2))/(No)))*exp(-mua*tau2)*exp(-muj*tau1))-(mua*y(2))];
+
+        end
+    end
+    
+
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+
+        % Button pushed function: CalculateButton
+        function CalculateButtonPushed(app, event)
+            beta=app.Percapitabirthrate1timeEditField.Value;
+            muj=app.Percapitajuveniledeathrate1timeEditField.Value;
+            mua=app.Percapitaadultdeathrate1timeEditField.Value;
+            No=app.MaximalpopulationsizenumbervolumeEditField.Value;
+            tau1=7;
+            tau2=4;
+            Jo=app.InitialjuvenilepopulationnumbervolumeEditField.Value;
+            Ao=app.InitialadultpopulationnumbervolumeEditField.Value;
+            timerun=app.DaysafterwhichDaphniasizeistobecalculatetimeEditField.Value;
+            threshold=app.WaterqualitythresholdnumbervolumeEditField.Value;
+
+
+            options = ddeset('RelTol',1e-6);
+
+
+            sol= dde23(@ddex1model9,[tau2;tau2+tau1],[Jo;Ao],[0,timerun],[options],beta,muj,mua,tau1,tau2,No);
+            
+            Totalend=sol.y(1,end)+sol.y(2,end);
+            
+            app.SizeofDaphniapopulationnumbervolumeEditField.Value=Totalend;
+            
+            Total=sol.y(1,:)+sol.y(2,:);
+            
+%           app.UIAxes.XTick=sol.x;
+            app.UIAxes.XLim=[0,timerun];
+            app.UIAxes.XTickMode='auto';
+            app.UIAxes.YTickMode='auto';
+
+
+%           plot(app.UIAxes,Total(1,1:end))
+
+
+            hold(app.UIAxes,'on')
+
+
+            plot(app.UIAxes,sol.y(1,1:end));
+            
+            plot(app.UIAxes,sol.y(2,1:end));
+            
+            hold(app.UIAxes,'off')
+            
+            legend(app.UIAxes, 'Juvenile','Adult','Location',"southeast");
+              
+            thresholddip=find(Total<threshold,1,"first");
+            
+            if isempty(thresholddip)
+                app.DoesDaphniapopulationsizedecreasebelowthresholdEditField.Value='No';
+                app.DoesDaphniapopulationsizedecreasebelowthresholdEditField.FontColor=[0.00,1.00,0.00];
+                app.DayatwhichDaphniasizedecreasesbelowthresholdtimeEditField.Value=00;
+            else ~isempty(thresholddip);
+                app.DoesDaphniapopulationsizedecreasebelowthresholdEditField.Value='Yes';
+                app.DoesDaphniapopulationsizedecreasebelowthresholdEditField.FontColor=[1.00,0.00,0.00];
+                app.DayatwhichDaphniasizedecreasesbelowthresholdtimeEditField.Value=thresholddip;
+            end
+                     
+
+
+        end
+    end
+
+
+    % Component initialization
+    methods (Access = private)
+
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Color = [1 1 1];
+            app.UIFigure.Position = [100 100 902 568];
+            app.UIFigure.Name = 'MATLAB App';
+
+
+            % Create DaphniaWastewaterManagementLabel
+            app.DaphniaWastewaterManagementLabel = uilabel(app.UIFigure);
+            app.DaphniaWastewaterManagementLabel.HorizontalAlignment = 'center';
+            app.DaphniaWastewaterManagementLabel.FontName = 'TakaoMincho';
+            app.DaphniaWastewaterManagementLabel.FontSize = 22;
+            app.DaphniaWastewaterManagementLabel.FontAngle = 'italic';
+            app.DaphniaWastewaterManagementLabel.Position = [279 512 346 40];
+            app.DaphniaWastewaterManagementLabel.Text = 'Daphnia Wastewater Management';
+
+
+            % Create Percapitabirthrate1timeEditFieldLabel
+            app.Percapitabirthrate1timeEditFieldLabel = uilabel(app.UIFigure);
+            app.Percapitabirthrate1timeEditFieldLabel.HorizontalAlignment = 'right';
+            app.Percapitabirthrate1timeEditFieldLabel.Position = [167 433 155 22];
+            app.Percapitabirthrate1timeEditFieldLabel.Text = 'Per capita birth rate (1/time)';
+
+
+            % Create Percapitabirthrate1timeEditField
+            app.Percapitabirthrate1timeEditField = uieditfield(app.UIFigure, 'numeric');
+app.Percapitabirthrate1timeEditField.Position = [337 433 100 22];
+
+
+% Create Percapitajuveniledeathrate1timeEditFieldLabel
+app.Percapitajuveniledeathrate1timeEditFieldLabel = uilabel(app.UIFigure);
+app.Percapitajuveniledeathrate1timeEditFieldLabel.HorizontalAlignment = 'right';
+app.Percapitajuveniledeathrate1timeEditFieldLabel.Position = [116 386 206 22];
+app.Percapitajuveniledeathrate1timeEditFieldLabel.Text = 'Per capita juvenile death rate (1/time)';
+
+
+% Create Percapitajuveniledeathrate1timeEditField
+app.Percapitajuveniledeathrate1timeEditField = uieditfield(app.UIFigure, 'numeric');
+app.Percapitajuveniledeathrate1timeEditField.Position = [337 386 100 22];
+
+
+% Create Percapitaadultdeathrate1timeEditFieldLabel
+app.Percapitaadultdeathrate1timeEditFieldLabel = uilabel(app.UIFigure);
+app.Percapitaadultdeathrate1timeEditFieldLabel.HorizontalAlignment = 'right';
+app.Percapitaadultdeathrate1timeEditFieldLabel.Position = [130 340 192 22];
+app.Percapitaadultdeathrate1timeEditFieldLabel.Text = 'Per capita adult death rate (1/time)';
+
+
+% Create Percapitaadultdeathrate1timeEditField
+app.Percapitaadultdeathrate1timeEditField = uieditfield(app.UIFigure, 'numeric');
+app.Percapitaadultdeathrate1timeEditField.Position = [337 340 100 22];
+
+
+% Create MaximalpopulationsizenumbervolumeEditFieldLabel
+app.MaximalpopulationsizenumbervolumeEditFieldLabel = uilabel(app.UIFigure);
+app.MaximalpopulationsizenumbervolumeEditFieldLabel.HorizontalAlignment = 'right';
+app.MaximalpopulationsizenumbervolumeEditFieldLabel.Position = [91 294 231 22];
+app.MaximalpopulationsizenumbervolumeEditFieldLabel.Text = 'Maximal population size (number/volume)';
+
+
+% Create MaximalpopulationsizenumbervolumeEditField
+app.MaximalpopulationsizenumbervolumeEditField = uieditfield(app.UIFigure, 'numeric');
+app.MaximalpopulationsizenumbervolumeEditField.Position = [337 294 100 22];
+
+
+% Create InitialjuvenilepopulationnumbervolumeEditFieldLabel
+app.InitialjuvenilepopulationnumbervolumeEditFieldLabel = uilabel(app.UIFigure);
+app.InitialjuvenilepopulationnumbervolumeEditFieldLabel.HorizontalAlignment = 'right';
+app.InitialjuvenilepopulationnumbervolumeEditFieldLabel.Position = [89 248 233 22];
+app.InitialjuvenilepopulationnumbervolumeEditFieldLabel.Text = 'Initial juvenile population (number/volume)';
+
+
+% Create InitialjuvenilepopulationnumbervolumeEditField
+app.InitialjuvenilepopulationnumbervolumeEditField = uieditfield(app.UIFigure, 'numeric');
+app.InitialjuvenilepopulationnumbervolumeEditField.Position = [337 248 100 22];
+
+
+% Create InitialadultpopulationnumbervolumeEditFieldLabel
+app.InitialadultpopulationnumbervolumeEditFieldLabel = uilabel(app.UIFigure);
+app.InitialadultpopulationnumbervolumeEditFieldLabel.HorizontalAlignment = 'right';
+app.InitialadultpopulationnumbervolumeEditFieldLabel.Position = [104 202 218 22];
+app.InitialadultpopulationnumbervolumeEditFieldLabel.Text = 'Initial adult population (number/volume)';
+
+
+% Create InitialadultpopulationnumbervolumeEditField
+app.InitialadultpopulationnumbervolumeEditField = uieditfield(app.UIFigure, 'numeric');
+app.InitialadultpopulationnumbervolumeEditField.Position = [337 202 100 22];
+
+
+% Create DaysafterwhichDaphniasizeistobecalculatetimeLabel
+app.DaysafterwhichDaphniasizeistobecalculatetimeLabel = uilabel(app.UIFigure);
+app.DaysafterwhichDaphniasizeistobecalculatetimeLabel.HorizontalAlignment = 'right';
+app.DaysafterwhichDaphniasizeistobecalculatetimeLabel.WordWrap = 'on';
+app.DaysafterwhichDaphniasizeistobecalculatetimeLabel.Position = [21 156 301 22];
+app.DaysafterwhichDaphniasizeistobecalculatetimeLabel.Text = 'Days after which Daphnia size is to be calculate (time)';
+
+
+% Create DaysafterwhichDaphniasizeistobecalculatetimeEditField
+app.DaysafterwhichDaphniasizeistobecalculatetimeEditField = uieditfield(app.UIFigure, 'numeric');
+app.DaysafterwhichDaphniasizeistobecalculatetimeEditField.Position = [337 156 100 22];
+
+
+% Create SizeofDaphniapopulationnumbervolumeEditFieldLabel
+app.SizeofDaphniapopulationnumbervolumeEditFieldLabel = uilabel(app.UIFigure);
+app.SizeofDaphniapopulationnumbervolumeEditFieldLabel.HorizontalAlignment = 'right';
+app.SizeofDaphniapopulationnumbervolumeEditFieldLabel.Position = [522 115 246 22];
+app.SizeofDaphniapopulationnumbervolumeEditFieldLabel.Text = 'Size of Daphnia population (number/volume)';
+
+
+% Create SizeofDaphniapopulationnumbervolumeEditField
+app.SizeofDaphniapopulationnumbervolumeEditField = uieditfield(app.UIFigure, 'numeric');
+app.SizeofDaphniapopulationnumbervolumeEditField.Position = [783 115 100 22];
+
+
+% Create WaterqualitythresholdnumbervolumeEditFieldLabel
+app.WaterqualitythresholdnumbervolumeEditFieldLabel = uilabel(app.UIFigure);
+app.WaterqualitythresholdnumbervolumeEditFieldLabel.HorizontalAlignment = 'right';
+app.WaterqualitythresholdnumbervolumeEditFieldLabel.Position = [98 115 224 22];
+app.WaterqualitythresholdnumbervolumeEditFieldLabel.Text = 'Water quality threshold (number/volume)';
+
+
+% Create WaterqualitythresholdnumbervolumeEditField
+app.WaterqualitythresholdnumbervolumeEditField = uieditfield(app.UIFigure, 'numeric');
+app.WaterqualitythresholdnumbervolumeEditField.Position = [337 115 100 22];
+
+
+% Create DayatwhichDaphniasizedecreasesbelowthresholdtimeEditFieldLabel
+app.DayatwhichDaphniasizedecreasesbelowthresholdtimeEditFieldLabel = uilabel(app.UIFigure);
+app.DayatwhichDaphniasizedecreasesbelowthresholdtimeEditFieldLabel.HorizontalAlignment = 'right';
+app.DayatwhichDaphniasizedecreasesbelowthresholdtimeEditFieldLabel.Position = [436 24 332 22];
+app.DayatwhichDaphniasizedecreasesbelowthresholdtimeEditFieldLabel.Text = 'Day at which Daphnia size decreases below threshold (time)';
+
+
+% Create DayatwhichDaphniasizedecreasesbelowthresholdtimeEditField
+app.DayatwhichDaphniasizedecreasesbelowthresholdtimeEditField = uieditfield(app.UIFigure, 'numeric');
+app.DayatwhichDaphniasizedecreasesbelowthresholdtimeEditField.Position = [783 24 100 22];
+
+
+% Create CalculateButton
+app.CalculateButton = uibutton(app.UIFigure, 'push');
+app.CalculateButton.ButtonPushedFcn = createCallbackFcn(app, @CalculateButtonPushed, true);
+app.CalculateButton.FontSize = 16;
+app.CalculateButton.Position = [178 54 134 37];
+app.CalculateButton.Text = 'Calculate';
+
+
+% Create DoesDaphniapopulationsizedecreasebelowthresholdEditFieldLabel
+app.DoesDaphniapopulationsizedecreasebelowthresholdEditFieldLabel = uilabel(app.UIFigure);
+app.DoesDaphniapopulationsizedecreasebelowthresholdEditFieldLabel.HorizontalAlignment = 'right';
+app.DoesDaphniapopulationsizedecreasebelowthresholdEditFieldLabel.Position = [450 69 318 22];
+app.DoesDaphniapopulationsizedecreasebelowthresholdEditFieldLabel.Text = 'Does Daphnia population size decrease below threshold?';
+
+
+% Create DoesDaphniapopulationsizedecreasebelowthresholdEditField
+app.DoesDaphniapopulationsizedecreasebelowthresholdEditField = uieditfield(app.UIFigure, 'text');
+app.DoesDaphniapopulationsizedecreasebelowthresholdEditField.HorizontalAlignment = 'right';
+app.DoesDaphniapopulationsizedecreasebelowthresholdEditField.FontColor = [1 0 0];
+app.DoesDaphniapopulationsizedecreasebelowthresholdEditField.Position = [783 69 100 22];
+
+
+% Create InputsLabel
+app.InputsLabel = uilabel(app.UIFigure);
+app.InputsLabel.FontSize = 16;
+app.InputsLabel.FontWeight = 'bold';
+app.InputsLabel.Position = [220 471 53 22];
+app.InputsLabel.Text = 'Inputs';
+
+
+% Create OutputsLabel
+app.OutputsLabel = uilabel(app.UIFigure);
+app.OutputsLabel.FontSize = 16;
+app.OutputsLabel.FontWeight = 'bold';
+app.OutputsLabel.Position = [672 471 67 22];
+app.OutputsLabel.Text = 'Outputs';
+
+
+% Create UIAxes
+app.UIAxes = uiaxes(app.UIFigure);
+xlabel(app.UIAxes, 'Days')
+ylabel(app.UIAxes, 'Daphnia population density')
+zlabel(app.UIAxes, 'Z')
+app.UIAxes.PlotBoxAspectRatio = [1.44656488549618 1 1];
+app.UIAxes.XLim = [0 1];
+app.UIAxes.XTick = [0 0.2 0.4 0.6 0.8 1];
+app.UIAxes.FontSize = 14;
+app.UIAxes.Position = [468 156 433 307];
+
+
+% Show the figure after all components are created
+app.UIFigure.Visible = 'on';
+end
+end
+
+
+% App creation and deletion
+methods (Access = public)
+
+
+% Construct app
+function app = App2
+
+
+% Create UIFigure and components
+createComponents(app)
+
+
+% Register the app with App Designer
+registerApp(app, app.UIFigure)
+
+
+if nargout == 0
+clear app
+end
+end
+
+
+% Code that executes before app deletion
+function delete(app)
+
+
+% Delete UIFigure when app is deleted
+delete(app.UIFigure)
+end
+end
+end
