@@ -1,0 +1,17 @@
+function dNdt = O3SS(t,y,Z, beta, muj1,muj2, mua,tau1,c3,tau2, No)
+
+
+ylag1 = Z(:,1);
+
+
+ylag2 = Z(:,2);
+
+
+ylag3 = Z(:,3);
+
+
+
+
+dNdt =[(beta*ylag1(3)*exp(-((ylag1(1)+ylag1(2)+ylag1(3))/(No)))*exp(-(mua*tau2))) - (beta*ylag2(3)*exp(-((ylag2(1)+ylag2(2)+ylag2(3))/(No)))*exp(-(mua*tau2))*exp(-(c3*muj1)))-(muj1*y(1))
+       (beta*ylag2(3)*exp(-((ylag2(1)+ylag2(2)+ylag2(3))/(No)))*exp(-(mua*tau2))*exp(-(c3*muj1))) - (beta*ylag3(3)*exp(-((ylag3(1)+ylag3(2)+ylag3(3))/(No)))*exp(-(mua*tau2))*exp(-(c3*muj1))*exp(-(muj2*(tau1-c3))))-(muj2*y(2))
+        (beta*ylag3(3)*exp(-((ylag3(1)+ylag3(2)+ylag3(3))/(No)))*exp(-(mua*tau2))*exp(-(c3*muj1))*exp(-(muj2*(tau1-c3))))-(mua*y(3))];
