@@ -1,0 +1,604 @@
+function J=O3SSrhsderivative(f,xx,par,nx,np,v)
+%% Parameter vector
+% |par| $=[par(1), par(2), par(3), par(4),par(5), par(6)]$.
+J=[];
+n=size(xx,1);
+if length(nx)==1 && isempty(np) && isempty(v)
+    %% First-order derivatives wrt to state nx+1
+    J=zeros(n,n);
+    if nx==0 % derivative wrt J and A
+        J(1,1) =      -par(2);
+        J(1,2) =      0  ;
+        J(1,3) =       0 ;
+        J(2,1) =     0   ;
+        J(2,2) =     -par(3)   ;
+        J(2,3) =       0 ;
+        J(3,1) =        0;
+        J(3,2) =        0;
+        J(3,3) =   -par(4)     ;
+    elseif nx==1 % derivative wrt J(t-par(8)) and A(t-par(8))
+        J(1,1) =    -(xx(3,2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)    ;
+        J(1,2) =      -(xx(3,2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)  ;
+        J(1,3) =      par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)) - (xx(3,2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)  ;
+        J(2,1) =     0   ;
+        J(2,2) =      0  ;
+        J(2,3) =       0 ;
+        J(3,1) =        0;
+        J(3,2) =       0 ;
+        J(3,3) =       0 ;
+    elseif nx==2 % derivative wrt J(t-(par(7)+par(8))) and A(t-(par(7)+par(8)))
+        J(1,1) =       (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+        J(1,2) =     (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)   ;
+        J(1,3) =       (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5))  ;
+        J(2,1) =       -(xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+        J(2,2) =   -(xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)     ;
+        J(2,3) =   par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)     ;
+        J(3,1) =      0  ;
+        J(3,2) =       0 ;
+        J(3,3) =       0 ;
+    elseif nx==3 % derivative wrt J(t-(par(6)+par(8))) and A(t-(par(6)+par(8)))
+        J(1,1) =  0   ;
+        J(1,2) =   0  ;
+        J(1,3) =    0 ;
+        J(2,1) =    (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)  ;
+        J(2,2) =    (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)  ;
+        J(2,3) =   (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))   ;
+        J(3,1) =     -(xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5);
+J(3,2) = -(xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,3) = par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ; 
+end
+elseif isempty(nx) && length(np)==1 && isempty(v)
+%% First order derivatives wrt parameters
+J=zeros(n,1);
+if np==1 % derivative wrt par(1)
+J(1,1) = xx(3,2)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)) - xx(3,3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) ;
+J(2,1) = xx(3,3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) - xx(3,4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ;
+J(3,1) = xx(3,4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ; 
+elseif np==2 % derivative wrt par(2)
+J(1,1) = xx(3,3)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) - xx(1,1) ;
+J(2,1) = xx(3,4)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) - xx(3,3)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) ;
+J(3,1) = -xx(3,4)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ; 
+elseif np==3 % derivative wrt par(3)
+J(1,1) = 0 ;
+J(2,1) = - xx(2,1) - xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(par(7) - par(6)) ;
+J(3,1) = xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(par(7) - par(6)) ; 
+elseif np==4 % derivative wrt par(4)
+J(1,1) = xx(3,3)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) - xx(3,2)*par(1)*par(8)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)) ;
+J(2,1) = xx(3,4)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) - xx(3,3)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) ;
+J(3,1) = - xx(3,1) - xx(3,4)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ; 
+elseif np==5 % derivative wrt par(5)
+J(1,1) = (xx(3,2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5))*(xx(3,2) + xx(1,2) + xx(2,2)))/par(5)^2 - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5))*(xx(3,3) + xx(1,3) + xx(2,3)))/par(5)^2 ;
+J(2,1) = (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5))*(xx(3,3) + xx(1,3) + xx(2,3)))/par(5)^2 - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(xx(3,4) + xx(1,4) + xx(2,4)))/par(5)^2 ;
+J(3,1) = (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(xx(3,4) + xx(1,4) + xx(2,4)))/par(5)^2; 
+elseif np==6 % derivative wrt par(6)
+J(1,1) = 0 ;
+J(2,1) = xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ;
+J(3,1) = -xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ; 
+elseif np==7 % derivative wrt par(6)
+J(1,1) = xx(3,3)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) ;
+J(2,1) = xx(3,4)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) - xx(3,3)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) - xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)));
+J(3,1) = xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) - xx(3,4)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ; 
+elseif np==8 % derivative wrt par(6)
+J(1,1) = xx(3,3)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) - xx(3,2)*par(1)*par(4)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5));
+J(2,1) = xx(3,4)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) - xx(3,3)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) ;
+J(3,1) = -xx(3,4)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ; 
+end
+
+
+elseif length(nx)==1 && length(np)==1 && isempty(v)
+%% Mixed state, parameter derivatives
+J=zeros(n,n);
+if nx==0 %first derivative wrt J and A
+if np==1 % derivative wrt par(1)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==2 % derivative wrt par(2)
+J(1,1) = -1 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==3 % derivative wrt par(3)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = -1 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==4 % derivative wrt par(4)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = -1 ; 
+elseif np==5 % derivative wrt par(5)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==6 % derivative wrt par(6)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==7 % derivative wrt par(7)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==8 % derivative wrt par(8)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+end 
+elseif nx==1 % first derivative wrt J(t-par(6)) and A(t-par(6))
+if np==1 % derivative wrt par(1)
+J(1,1) = -(xx(3,2)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) ;
+J(1,2) = -(xx(3,2)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) ;
+J(1,3) = exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)) - (xx(3,2)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==2 % derivative wrt par(2)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==3 % derivative wrt par(3)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==4 % derivative wrt par(4)
+J(1,1) = (xx(3,2)*par(1)*par(8)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) ;
+J(1,2) = (xx(3,2)*par(1)*par(8)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) ;
+J(1,3) = (xx(3,2)*par(1)*par(8)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) - par(1)*par(8)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)) ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==5 % derivative wrt par(5)
+J(1,1) = (xx(3,2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)^2 - (xx(3,2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5))*(xx(3,2) + xx(1,2) + xx(2,2)))/par(5)^3 ;
+J(1,2) = (xx(3,2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)^2 - (xx(3,2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5))*(xx(3,2) + xx(1,2) + xx(2,2)))/par(5)^3 ;
+J(1,3) = (par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5))*(xx(3,2) + xx(1,2) + xx(2,2)))/par(5)^2 + (xx(3,2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)^2 - (xx(3,2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5))*(xx(3,2) + xx(1,2) + xx(2,2)))/par(5)^3 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==6 % derivative wrt par(6)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==7 % derivative wrt par(7)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==8 % derivative wrt par(8)
+J(1,1) = (xx(3,2)*par(1)*par(4)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) ;
+J(1,2) = (xx(3,2)*par(1)*par(4)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) ;
+J(1,3) = (xx(3,2)*par(1)*par(4)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) - par(1)*par(4)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)) ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+end
+elseif nx==2 % first derivative wrt J(t-par(7)) and A(t-par(7))
+if np==1 % derivative wrt par(1)
+J(1,1) = (xx(3,3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(1,2) = (xx(3,3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(1,3) = (xx(3,3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) ;
+J(2,1) = -(xx(3,3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,2) = -(xx(3,3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,3) = exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) - (xx(3,3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==2 % derivative wrt par(2)
+J(1,1) = -(xx(3,3)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(1,2) = -(xx(3,3)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(1,3) = par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) - (xx(3,3)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,1) = (xx(3,3)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,2) = (xx(3,3)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,3) = (xx(3,3)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==3 % derivative wrt par(3)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==4 % derivative wrt par(4)
+J(1,1) = -(xx(3,3)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(1,2) = -(xx(3,3)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(1,3) = par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) - (xx(3,3)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,1) = (xx(3,3)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,2) = (xx(3,3)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,3) = (xx(3,3)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==5 % derivative wrt par(5)
+J(1,1) = (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5))*(xx(3,3) + xx(1,3) + xx(2,3)))/par(5)^3 - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 ;
+J(1,2) = (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5))*(xx(3,3) + xx(1,3) + xx(2,3)))/par(5)^3 - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 ;
+J(1,3) = (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5))*(xx(3,3) + xx(1,3) + xx(2,3)))/par(5)^3 - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 - (par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5))*(xx(3,3) + xx(1,3) + xx(2,3)))/par(5)^2 ;
+J(2,1) = (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5))*(xx(3,3) + xx(1,3) + xx(2,3)))/par(5)^3 ;
+J(2,2) = (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5))*(xx(3,3) + xx(1,3) + xx(2,3)))/par(5)^3 ;
+J(2,3) = (par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5))*(xx(3,3) + xx(1,3) + xx(2,3)))/par(5)^2 + (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5))*(xx(3,3) + xx(1,3) + xx(2,3)))/par(5)^3 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==6 % derivative wrt par(6)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==7 % derivative wrt par(7)
+J(1,1) = -(xx(3,3)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(1,2) = -(xx(3,3)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(1,3) = par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) - (xx(3,3)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,1) = (xx(3,3)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,2) = (xx(3,3)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,3) = (xx(3,3)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif np==8 % derivative wrt par(8)
+J(1,1) = -(xx(3,3)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(1,2) = -(xx(3,3)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(1,3) = par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) - (xx(3,3)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,1) = (xx(3,3)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,2) = (xx(3,3)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) ;
+J(2,3) = (xx(3,3)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)) ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+end
+elseif nx==3 % first derivative wrt J(t-par(7)) and A(t-par(7))
+if np==1 % derivative wrt par(1)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = (xx(3,4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(2,2) = (xx(3,4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(2,3) = (xx(3,4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ;
+J(3,1) = -(xx(3,4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,2) = -(xx(3,4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,3) = exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) - (xx(3,4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ; 
+elseif np==2 % derivative wrt par(2)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = -(xx(3,4)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(2,2) = -(xx(3,4)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(2,3) = par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) - (xx(3,4)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,1) = (xx(3,4)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,2) = (xx(3,4)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,3) = (xx(3,4)*par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - par(1)*par(7)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ; 
+elseif np==3 % derivative wrt par(3)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(par(7) - par(6)))/par(5) ;
+J(2,2) = (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(par(7) - par(6)))/par(5) ;
+J(2,3) = (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(par(7) - par(6)))/par(5) - par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(par(7) - par(6)) ;
+J(3,1) = -(xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(par(7) - par(6)))/par(5) ;
+J(3,2) = -(xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(par(7) - par(6)))/par(5) ;
+J(3,3) = par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(par(7) - par(6)) - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(par(7) - par(6)))/par(5) ; 
+elseif np==4 % derivative wrt par(4)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = -(xx(3,4)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(2,2) = -(xx(3,4)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(2,3) = par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) - (xx(3,4)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,1) = (xx(3,4)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,2) = (xx(3,4)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,3) = (xx(3,4)*par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - par(1)*par(8)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ; 
+elseif np==5 % derivative wrt par(5)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(xx(3,4) + xx(1,4) + xx(2,4)))/par(5)^3 - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 ;
+J(2,2) = (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(xx(3,4) + xx(1,4) + xx(2,4)))/par(5)^3 - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 ;
+J(2,3) = (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(xx(3,4) + xx(1,4) + xx(2,4)))/par(5)^3 - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 - (par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(xx(3,4) + xx(1,4) + xx(2,4)))/par(5)^2 ;
+J(3,1) = (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(xx(3,4) + xx(1,4) + xx(2,4)))/par(5)^3 ;
+J(3,2) = (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(xx(3,4) + xx(1,4) + xx(2,4)))/par(5)^3 ;
+J(3,3) = (par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(xx(3,4) + xx(1,4) + xx(2,4)))/par(5)^2 + (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6)))*(xx(3,4) + xx(1,4) + xx(2,4)))/par(5)^3 ; 
+elseif np==6 % derivative wrt par(6)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = -(xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(2,2) = -(xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(2,3) = par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) - (xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,1) = (xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,2) = (xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,3) = (xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ; 
+elseif np==7 % derivative wrt par(7)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = (xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - (xx(3,4)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(2,2) = (xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - (xx(3,4)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(2,3) = par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) - par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) - (xx(3,4)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) + (xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,1) = (xx(3,4)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - (xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,2) = (xx(3,4)*par(1)*par(2)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - (xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,3) = (xx(3,4)*par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - par(1)*par(3)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ; 
+elseif np==8 % derivative wrt par(8)
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = -(xx(3,4)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(2,2) = -(xx(3,4)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(2,3) = par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) - (xx(3,4)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,1) = (xx(3,4)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,2) = (xx(3,4)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) ;
+J(3,3) = (xx(3,4)*par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - par(1)*par(4)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))) ; 
+end
+end 
+
+elseif length(nx)==2 && isempty(np) && ~isempty(v)
+v=reshape(v,[n,1]);
+%% Second order derivatives wrt state variables
+if nx(1)==0 % first derivative wrt J and A
+if nx(2)==0 % second derivative with respect to J and A
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif nx(2)==1 % second derivative wrt J(t-par(6)) and A(t-par(6))
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif nx(2)==2 % second derivative wrt J(t-par(7)) and A(t-par(7))
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif nx(2)==3 % second derivative wrt J(t-par(7)) and A(t-par(7))
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+end
+
+
+elseif nx(1)==1 % first derivative wrt J(t-par(6)) and A(t-par(6))
+if nx(2)==0 % second derivative with respect to J and A
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif nx(2)==1 % second derivative wrt J(t-par(6)) and A(t-par(6))
+J(1,1) = (xx(3,2)*v(1)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)^2 - v(3)*((par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) - (xx(3,2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)^2) + (xx(3,2)*v(2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)^2 ;
+J(1,2) = (xx(3,2)*v(1)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)^2 - v(3)*((par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) - (xx(3,2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)^2) + (xx(3,2)*v(2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)^2 ;
+J(1,3) = (xx(3,2)*v(1)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)^2 - (v(1)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) - (v(2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) - v(3)*((2*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5) - (xx(3,2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)^2) + (xx(3,2)*v(2)*par(1)*exp(-par(4)*par(8))*exp(-(xx(3,2) + xx(1,2) + xx(2,2))/par(5)))/par(5)^2 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif nx(2)==2 % second derivative wrt J(t-par(7)) and A(t-par(7))
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif nx(2)==3 % second derivative wrt J(t-par(7)) and A(t-par(7))
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+end
+elseif nx(1)==2 % first derivative wrt J(t-par(7)) and A(t-par(7))
+if nx(2)==0 % second derivative with respect to J and A
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif nx(2)==1 % second derivative wrt J(t-par(6)) and A(t-par(6))
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif nx(2)==2 % second derivative wrt J(t-par(7)) and A(t-par(7))
+J(1,1) = v(3)*((par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2) - (xx(3,3)*v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 - (xx(3,3)*v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 ;
+J(1,2) = v(3)*((par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2) - (xx(3,3)*v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 - (xx(3,3)*v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 ;
+J(1,3) = v(3)*((2*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2) + (v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) + (v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - (xx(3,3)*v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 - (xx(3,3)*v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 ;
+J(2,1) = (xx(3,3)*v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 - v(3)*((par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2) + (xx(3,3)*v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 ;
+J(2,2) = (xx(3,3)*v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 - v(3)*((par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2) + (xx(3,3)*v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 ;
+J(2,3) = (xx(3,3)*v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 - (v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - (v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - v(3)*((2*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5) - (xx(3,3)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2) + (xx(3,3)*v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,3) + xx(1,3) + xx(2,3))/par(5)))/par(5)^2 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif nx(2)==3 % second derivative wrt J(t-par(7)) and A(t-par(7))
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+end
+elseif nx(1)==3 % first derivative wrt J(t-par(7)) and A(t-par(7))
+if nx(2)==0 % second derivative with respect to J and A
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif nx(2)==1 % second derivative wrt J(t-par(6)) and A(t-par(6))
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif nx(2)==2 % second derivative wrt J(t-par(7)) and A(t-par(7))
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0;
+J(2,1) = 0 ;
+J(2,2) = 0 ;
+J(2,3) = 0 ;
+J(3,1) = 0 ;
+J(3,2) = 0 ;
+J(3,3) = 0 ; 
+elseif nx(2)==3 % second derivative wrt J(t-par(7)) and A(t-par(7))
+J(1,1) = 0 ;
+J(1,2) = 0 ;
+J(1,3) = 0 ;
+J(2,1) = v(3)*((par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2) - (xx(3,4)*v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 - (xx(3,4)*v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 ;
+J(2,2) = v(3)*((par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2) - (xx(3,4)*v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 - (xx(3,4)*v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 ;
+J(2,3) = v(3)*((2*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2) + (v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) + (v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - (xx(3,4)*v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 - (xx(3,4)*v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 ;
+J(3,1) = (xx(3,4)*v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 - v(3)*((par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2) + (xx(3,4)*v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 ;
+J(3,2) = (xx(3,4)*v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 - v(3)*((par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2) + (xx(3,4)*v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 ;
+J(3,3) = (xx(3,4)*v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 - (v(1)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - (v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - v(3)*((2*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5) - (xx(3,4)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2) + (xx(3,4)*v(2)*par(1)*exp(-par(7)*par(2))*exp(-par(4)*par(8))*exp(-(xx(3,4) + xx(1,4) + xx(2,4))/par(5))*exp(par(3)*(par(7) - par(6))))/par(5)^2 ; 
+end 
+end
+% else
+% J=df_deriv(struct('sys_rhs',f),xx,par,nx,np,v);
+end
+%% Otherwise raise error
+% Raise error if the requested derivative does par(4)t exist
+if isempty(J)
+error(['SYS_DERI: requested derivative nx=%d, np=%d, size(v)=%d',...
+'could par(4)t be computed!'],nx,np,size(v));
+end
+end
