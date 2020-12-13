@@ -1,0 +1,16 @@
+%This is the code that calculates the stability of periodic orbit branches. The output is a row vector, that here I have called “stability_indicator”. Each point in the vector corresponds to a point on your periodic orbit branch. If point x in the vector is equal to 0, the corresponding periodic point is stable. If point x in the vector is equal to 1, the corresponding periodic point is unstable. 
+
+tol=1e-9;
+
+
+stability_indicator=zeros(length(NAME_OF_BRANCH_HERE),1);
+
+
+for i=1:length(NAME_OF_BRANCH_HERE.point)
+       
+      if abs(NAME_OF_BRANCH_HERE(i).stability.mu(1))>1+tol
+          stability_indicator(i)=1;
+      else
+          stability_indicator(i)=0;
+      end
+end
