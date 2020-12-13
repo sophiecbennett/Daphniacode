@@ -1,0 +1,32 @@
+%This is the function that returns the values of the delays in the system. 
+
+
+% tau is the output representing a delay. We vary the value of ind through
+% an if statement, where ind represents the index of a delay in the list of
+% the delays. 
+
+
+%The delays for this model are tau2 and (tau1+tau2), thus, tau2 has index 1
+%and (tau1+tau2) has index 2 in the list of delays. This order of the
+%delays with the delay list must remain throughout the entirety of your
+%code. 
+
+
+% Remember, even though our second delay is of the state dependent kind, the
+% first is not, and so it appears in the parameter vector as well as within this function.
+
+
+function tau=Oscillatory2SSDelays(ind,xx,par) 
+    if ind ==1 %When our bifurcation diagram code requires the first delay
+    tau=par(5); % tau (the output of the function) takes the value of tau2
+    elseif ind ==2 %When our bifurcation diagram code requires the second delay
+    tau=par(5)+ par(6); % tau (the output of the function) takes the value of (tau1+tau2)
+    end 
+end
+
+
+%Notice here that the variable input xx is unused in this specific
+%function, because none of the delays in the system we are considering
+%depend on the dependent variables of the system, but I have left it in here
+%to demonstrate that the delays are allowed to depend upon the dependent
+%variables. 
