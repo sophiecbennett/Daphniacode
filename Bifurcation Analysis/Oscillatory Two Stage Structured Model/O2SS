@@ -1,0 +1,8 @@
+    function dNdt = O2SS(t,y,Z, beta, muj, mua,tau1,tau2, No)
+    
+    ylag1 = Z(:,1);
+    
+    ylag2 = Z(:,2);
+    
+    dNdt =[(beta*ylag1(2)*exp(-((ylag1(1)+ylag1(2))/(No)))*exp(-mua*tau2))-(beta*ylag2(2)*exp(-((ylag2(1)+ylag2(2))/(No)))*exp(-mua*tau2)*exp(-muj*tau1))-(muj*y(1))
+           (beta*ylag2(2)*exp(-((ylag2(1)+ylag2(2))/(No)))*exp(-mua*tau2)*exp(-muj*tau1))-(mua*y(2))];
