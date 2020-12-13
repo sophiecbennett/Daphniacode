@@ -1,0 +1,9 @@
+%This is the initialisation file you need to run first to make sure the 
+%code you run after has access to the files within the DDE-BIFTOOL folder.
+
+
+
+
+clear;                           % clear variables
+close all;                       % close figures
+addpath('../../ddebiftool');    % add ddebiftool folder to path
