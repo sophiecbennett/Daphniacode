@@ -1,0 +1,464 @@
+function dtau=O2SStauderivative(ind,xx,par,nx,np) 
+    
+%The output of this function is dtau. This is a vector with the number
+%of elements is the number of delays. Depending on what we diferentiate
+%each delay by, the values of the elements of dtau will be different. 
+%This idea of these derivative functions is we take partial derivatives 
+%with repect the dependent variables (not delayed and delayed), 
+%parameters and mixtures of dependent variables (not delayed and 
+%delayed) and parameters.
+
+
+%In this function we are doing the above with the delays in our system:
+%  Delay 1 = tau2,
+%  Delay 2 = tau1+tau2.
+
+
+%We start off by initialising dtau as empty. 
+    
+ dtau =[];
+ 
+%Recall in the statement of the right hand side we expressed our variables
+%in the form xx(A,B), where the value of B indicated whether the dependent
+%variable is not delayed or delayed, and if delayed, the value of B tells
+%us by which delay in our system. Here, the variable nx is a vector whos
+%elements take the value of B, as they tell us by what state of the
+%dependent variable we are going to differentiate with respect to. Every
+%element of nx represents one differentiation with respect to the state of
+%the dependent variable each element indicates. 
+
+
+%The same applies with the vector np, although np represents
+%differentiation with repsect to a parameter. 
+ 
+if length(nx)==1 && isempty(np)
+     
+     % This is saying consider the case when nx is of length 1 (so
+     % differentiation with respect to the dependent variable occurs once)
+     % and when np is empty (so no differentiation with respect to a 
+     % parameter occurs). In the same way that the value of B goes up as we
+     % go from no delay to the first delay to the second delay etc, the
+     % value of nx goes up from 0 (differentiation with respect to no
+     % delay) to 1 (differentiation with respect to the first delay) to 2 
+     % (differentiation with respect to thr second delay) etc.
+
+
+     %For every delay we consider (indicated by the value of dtau) the
+     %output of this function is dtau. For the case where we are looking at
+     %one derivative with respect to the independent variable only, dtau is
+     %a row vector with A columns (one for each dependent variable). For
+     %the given delay we consider, the first column is that delay
+%differentiatied with repect to the first dependent variable, the
+%second column is that delay differentiayted with respect to the
+%second dependent variable etc etc. The actual value of nx tells us
+%what form of the dependent variables we are differentiating with
+%respect to. 
+
+
+if nx==0 % This means derivative of each delay with respect to the dependent variable with no delay
+
+%Since all our delays are independent of dependent variables not delayed, dtau
+%is just a row of zeros for both delays.
+
+dtau=zeros(1,2); 
+
+elseif nx==1 % This means derivative of each delay with respect to the dependent variable with the first delay, tau2
+
+%Since all our delays are independent of dependent variables delayed by the first delay, dtau
+%is just a row of zeros for both delays.
+
+dtau=zeros(1,2); 
+
+
+elseif nx==2 % This means derivative of each delay with respect to the dependent variable with the second delay, (tau1+tau2)
+
+%Since all our delays are independent of dependent variables delayed by the first delay, dtau
+%is just a row of zeros for both delays.
+
+dtau=zeros(1,2); 
+
+end
+
+if ind==1
+if nx==0 %This is the case where the first delay (tau2) was differentiated by the dependent variables, not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t)
+elseif nx==1 %This is the case where the first delay (tau2) was differentiated by the dependent variables delayed by the first delay
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t) 
+elseif nx==2 %This is the case where the first delay (tau2) was differentiated by the dependent variables delayed by the second delay
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t) 
+end
+
+
+elseif ind==2
+if nx==0 %This is the case where the first delay (tau2) was differentiated by the dependent variables, not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t)
+elseif nx==1 %This is the case where the first delay (tau2) was differentiated by the dependent variables delayed by the first delay
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t) 
+elseif nx==2 %This is the case where the first delay (tau2) was differentiated by the dependent variables delayed by the second delay
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t) 
+end
+
+end
+
+% We use this notation because it is simple when the values in all the
+% elements of dtau are the same. But if the values were different for 
+% say the first delay, say C for the first element and D for the second 
+% element, then an example of the above would be 
+%if ind==1
+% dtau(1,1)=C;
+% dtau(1,2)=D;
+%else
+% dtau=zeros(1,2)
+%end
+
+elseif isempty(nx) && length(np)==1
+
+% This is saying consider the case when np is of length 1 (so
+% differentiation with respect to a parameter occurs once)
+% and when nx is empty (so no differentiation with respect to the 
+% dependent variable occurs). In this instance, the
+% value of np goes up from 1 (differentiation with respect to the
+% first parameter in the parameter vector) to 2 (differentiation with 
+% respect to the second parameter in the parameter vector) etc.
+
+%For every delay we consider (indicated by the value of dtau) the
+%output of this function is dtau. For the case where we are looking at
+%one derivative with respect to the a parameter value only, dtau is
+%a scalar - simply the value of the derivaitive of the delay we are 
+% considering with repsect to that parameter.
+
+if np ==1 %This means derivative of each delay with respect to the first parameter
+if ind==1 %The first delay
+dtau=0;
+elseif ind==2%The second delay
+dtau=0;
+end 
+elseif np ==2 %This means derivative of each delay with respect to the second parameter
+if ind==1 %The first delay
+dtau=0;
+elseif ind==2 %The second delay
+dtau=0;
+end 
+elseif np ==3 
+if ind==1
+dtau=0;
+elseif ind==2
+dtau=0;
+end 
+elseif np ==4 
+if ind==1
+dtau=0;
+elseif ind==2
+dtau=0;
+end 
+elseif np ==5 
+if ind==1
+dtau=0;
+elseif ind==2
+dtau=1;
+end 
+elseif np ==6 
+if ind==1
+dtau=1;
+elseif ind==2
+dtau=1;
+end 
+end 
+
+elseif length(nx)==2 && isempty(np)
+
+% This is saying consider the case when nx is of length 2 (so
+% differentiation with respect to the dependent variable occurs twice)
+% and when np is empty (so no differentiation with respect to a 
+% parameter occurs). In turn we look at each of the first derivatives,
+% and then differentiate them again with respect to no
+% delay, then with respect to the first delay, then with respect to 
+% the second delay etc
+
+%For every delay we consider (indicated by the value of dtau) the
+%output of this function is dtau. For the case where we are looking at
+%two differentiations with respect to the dependent variables, for 
+% every combination of derivatives, dtau is a nxn matix where n is the 
+% number of dependent variables.
+
+if ind==1
+if nx(1)==0 %This is the case where the first delay (tau2) was differentiated by the dependent variables, not delayed
+if nx(2)==0 %We then take another derivative of this with respect to the dependent variables not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t)
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t), then diffed wrt J(t)
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t), then diffed wrt A(t) 
+elseif nx(2)==1 %We then take another derivative of this with respect to the dependent variables delayed by the first derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-tau2)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-tau2)
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t), then diffed wrt J(t-tau2)
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t), then diffed wrt A(t-tau2) 
+elseif nx(2)==2 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t), then diffed wrt J(t-(tau1+tau2))
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t), then diffed wrt A(t-(tau1+tau2)) 
+end
+elseif nx(1)==1 %This is the case where the first delay (tau2) was differentiated by the dependent variables delayed by the first delay
+if nx(2)==0 %We then take another derivative of this with respect to the dependent variables not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t-tau2), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t-tau2), then diffed wrt A(t)
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t-tau2), then diffed wrt J(t)
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t-tau2), then diffed wrt A(t) 
+elseif nx(2)==1 %We then take another derivative of this with respect to the dependent variables delayed by the first derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t-tau2), then diffed wrt J(t-tau2)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t-tau2), then diffed wrt A(t-tau2)
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t-tau2), then diffed wrt J(t-tau2)
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t-tau2), then diffed wrt A(t-tau2) 
+elseif nx(2)==2 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t-tau2), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t-tau2), then diffed wrt A(t-(tau1+tau2))
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t-tau2), then diffed wrt J(t-(tau1+tau2))
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t-tau2), then diffed wrt A(t-(tau1+tau2)) 
+end
+
+elseif nx(1)==2 %This is the case where the first delay (tau2) was differentiated by the dependent variables delayed by the second delay
+if nx(2)==0 %We then take another derivative of this with respect to the dependent variables not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t-(tau1+tau2)), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t-(tau1+tau2)), then diffed wrt A(t)
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t-(tau1+tau2)), then diffed wrt J(t)
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t-(tau1+tau2)), then diffed wrt A(t) 
+elseif nx(2)==1 %We then take another derivative of this with respect to the dependent variables delayed by the first derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t-(tau1+tau2)), then diffed wrt J(t-tau2)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t-(tau1+tau2)), then diffed wrt A(t-tau2)
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t-(tau1+tau2)), then diffed wrt J(t-tau2)
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t-(tau1+tau2)), then diffed wrt A(t-tau2) 
+elseif nx(2)==2 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t-(tau1+tau2)), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t-(tau1+tau2)), then diffed wrt A(t-(tau1+tau2))
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t-(tau1+tau2)), then diffed wrt J(t-(tau1+tau2))
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t-(tau1+tau2)), then diffed wrt A(t-(tau1+tau2)) 
+end
+
+end
+
+
+elseif ind==2
+if nx(1)==0 %This is the case where the second delay (tau1+tau2) was differentiated by the dependent variables, not delayed
+if nx(2)==0 %We then take another derivative of this with respect to the dependent variables not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t)
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t), then diffed wrt J(t)
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t), then diffed wrt A(t) 
+elseif nx(2)==1 %We then take another derivative of this with respect to the dependent variables delayed by the first derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-tau2)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-tau2)
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t), then diffed wrt J(t-tau2)
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t), then diffed wrt A(t-tau2) 
+elseif nx(2)==2 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t), then diffed wrt J(t-(tau1+tau2))
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t), then diffed wrt A(t-(tau1+tau2)) 
+end
+elseif nx(1)==1 %This is the case where the second delay (tau1+tau2) was differentiated by the dependent variables delayed by the first delay
+if nx(2)==0 %We then take another derivative of this with respect to the dependent variables not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t-tau2), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t-tau2), then diffed wrt A(t)
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t-tau2), then diffed wrt J(t)
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t-tau2), then diffed wrt A(t) 
+elseif nx(2)==1 %We then take another derivative of this with respect to the dependent variables delayed by the first derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t-tau2), then diffed wrt J(t-tau2)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t-tau2), then diffed wrt A(t-tau2)
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t-tau2), then diffed wrt J(t-tau2)
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t-tau2), then diffed wrt A(t-tau2) 
+elseif nx(2)==2 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t-tau2), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t-tau2), then diffed wrt A(t-(tau1+tau2))
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t-tau2), then diffed wrt J(t-(tau1+tau2))
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t-tau2), then diffed wrt A(t-(tau1+tau2)) 
+end
+
+elseif nx(1)==2 %This is the case where the second delay (tau1+tau2) was differentiated by the dependent variables delayed by the second delay
+if nx(2)==0 %We then take another derivative of this with respect to the dependent variables not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t-(tau1+tau2)), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t-(tau1+tau2)), then diffed wrt A(t)
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t-(tau1+tau2)), then diffed wrt J(t)
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t-(tau1+tau2)), then diffed wrt A(t) 
+elseif nx(2)==1 %We then take another derivative of this with respect to the dependent variables delayed by the first derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t-(tau1+tau2)), then diffed wrt J(t-tau2)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t-(tau1+tau2)), then diffed wrt A(t-tau2)
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t-(tau1+tau2)), then diffed wrt J(t-tau2)
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t-(tau1+tau2)), then diffed wrt A(t-tau2) 
+elseif nx(2)==2 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t-(tau1+tau2)), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t-(tau1+tau2)), then diffed wrt A(t-(tau1+tau2))
+dtau(2,1)=0; %This is this is the first delay diffed wrt A(t-(tau1+tau2)), then diffed wrt J(t-(tau1+tau2))
+dtau(2,2)=0; %This is this is the first delay diffed wrt A(t-(tau1+tau2)), then diffed wrt A(t-(tau1+tau2)) 
+end
+
+end
+end
+
+
+elseif length(nx)==1 && length(np)==1 
+
+
+%This is saying consider the case when nx is of length 1 (so
+%differentiation with respect to the dependent variable occurs once)
+%and when np is of length 1 (so differentiation with respect to a 
+%parameter also occurs once).
+
+%For every delay we consider (indicated by the value of dtau) the
+%output of this function is dtau. For the case where we are looking at
+%two differentiations, the first with respect to the dependent 
+% variables and the second with respect to a parameter, for every 
+% combination of derivatives, dtau is a row vector with n columns, 
+% where n is the number of dependent variables.
+
+if ind==1
+if nx==0 %This is the case where the first delay (tau2) was differentiated by the dependent variables, not delayed
+if np==1 %We then take another derivative of this with respect to the dependent variables not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t)
+elseif np==2 %We then take another derivative of this with respect to the dependent variables delayed by the first derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-tau2)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-tau2)
+elseif np==3 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==4 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==5 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==6 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+end
+elseif nx==1 %This is the case where the first delay (tau2) was differentiated by the dependent variables delayed by the first delay
+if np==1 %We then take another derivative of this with respect to the dependent variables not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t)
+elseif np==2 %We then take another derivative of this with respect to the dependent variables delayed by the first derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-tau2)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-tau2)
+elseif np==3 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==4 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==5 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==6 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+end
+
+elseif nx==2 %This is the case where the first delay (tau2) was differentiated by the dependent variables delayed by the second delay
+if np==1 %We then take another derivative of this with respect to the dependent variables not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t)
+elseif np==2 %We then take another derivative of this with respect to the dependent variables delayed by the first derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-tau2)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-tau2)
+elseif np==3 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==4 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==5 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==6 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+end
+
+end
+
+
+elseif ind==2
+if nx==0 %This is the case where the first delay (tau2) was differentiated by the dependent variables, not delayed
+if np==1 %We then take another derivative of this with respect to the dependent variables not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t)
+elseif np==2 %We then take another derivative of this with respect to the dependent variables delayed by the first derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-tau2)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-tau2)
+elseif np==3 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==4 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==5 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==6 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+end
+elseif nx==1 %This is the case where the first delay (tau2) was differentiated by the dependent variables delayed by the first delay
+if np==1 %We then take another derivative of this with respect to the dependent variables not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t)
+elseif np==2 %We then take another derivative of this with respect to the dependent variables delayed by the first derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-tau2)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-tau2)
+elseif np==3 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==4 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==5 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==6 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+end
+
+elseif nx==2 %This is the case where the first delay (tau2) was differentiated by the dependent variables delayed by the second delay
+if np==1 %We then take another derivative of this with respect to the dependent variables not delayed
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t)
+elseif np==2 %We then take another derivative of this with respect to the dependent variables delayed by the first derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-tau2)
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-tau2)
+elseif np==3 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==4 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==5 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+elseif np==6 %We then take another derivative of this with respect to the dependent variables delayed by the second derivative
+dtau(1,1)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt J(t-(tau1+tau2))
+dtau(1,2)=0; %This is this is the first delay diffed wrt J(t), then diffed wrt A(t-(tau1+tau2))
+end
+
+end
+
+end
+
+
+
+% This is an error statement I have copied from the other derivative codes
+% and always add so if errors are occurring in this file, there will be an
+% output in the command window flagging it up. 
+
+
+elseif isempty(dtau)
+error(['SYS_DTAU, delay %d: requested derivative ',...
+'nx=%d, np=%d does not exist!'],delay_nr, nx, np);
+end
+end
