@@ -1,0 +1,87 @@
+%This is where we load our functions into the structure set_funcs.
+
+
+%The system we consider is the one sent to you in the original email called
+%the Oscillatory Two Stage Structured Model. This is a model that falls under the category of “Equations with state dependent delays”. This means in order to create the structure set_funcs, will will be referring to sections 27 through to 32 in the Manual Help document corresponding to section 6.3 in the Manual with annotations. Since there is some over lap between the functions required in this case and the case of constant delays, please do read sections 23 through to 26 in the Manual help document as well for more information. 
+
+
+%For this model, I have used
+%the following parameter vector for the parameters in the model:
+%        par = [beta, muj, mua, No, tau1, tau2].
+
+
+%This system has 2 delays - tau2 and (tau1+tau2) - when B=1 for
+%xx(A,B) this represents no delay, when B=2 for
+%xx(A,B) this represents the delay of tau2 and when B=3 for
+%xx(A,B) this represents the delay of (tau1+tau2). 
+
+
+%As explained in point 24 of the Manual Help document, I think the easiest way to define the right
+%hand side (because the code for the right hand is not very long) is
+%through an anonymous function, as seen below. 
+
+
+Oscillatory2SS=@(xx,par)[...    
+(par(1)*xx(2,2)*exp(-((xx(1,2)+xx(2,2))/(par(4))))*exp(-par(3)*par(6)))-(par(1)*xx(2,3)*exp(-((xx(1,3)+xx(2,3))/(par(4))))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))-(par(2)*xx(1,1))
+      (par(1)*xx(2,3)*exp(-((xx(1,3)+xx(2,3))/(par(4))))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))-(par(3)*xx(2,1))];
+
+
+%In the same way, I create an anonymous function that simply represents the
+%number of delays. There does not need to be any variables declared (there
+%are no variables in the brackets) because the output of the function is
+%simply an integer.
+
+
+numberofdelays=@()2;
+
+
+%For the rest of the functions, because they are quite long, we define them
+%in separate function files.
+%For the function file containing the derivatives of the right hand side, we
+%have the file Oscillatory2SSRHSderivatives. 
+%For the function file containing the values of the delays, we
+%have the file Oscillatory2SSDelays. 
+%For the function file containing the derivatives of the delays we
+%have the file Oscillatory2SSDelayderivatives. 
+
+
+%You will notice that for the right hand side derivative function,
+%Oscillatory2SSRHSderivatives, there is an input variable f. This variable
+%represents the right hand side we are having the derivatives computed
+%from. I have found the most efficient way to make the code work is to
+%define an anonymous function in this file (call it RHSderivative) for
+%which the function is uses is Oscillatory2SSRHSderivatives and you add the
+%explicit name of the righthand side function you have coded, in this case
+%Oscillatory2SS, in for the variable f. This is done below:
+
+
+RHSderivative=@(xx,par,nx,np,v)Oscillatory2SSRHSderivatives(Oscillatory2SS,xx,par,nx,np,v);
+
+
+%You then just label RHSderivative as 'sys_deri' in set funcs. 
+
+
+%Once you have defined each of the above three functions in separate function files, we load these and the anonymous functions in this file into our function structure set_funcs. For the
+%functions that are anonymous and stated in this script file, we just type the
+%name of the function after the label we want to assign it to. For the
+%functions we have defined in separate files, we place an @ sign infront of
+%the name of the function, after the label we want to assign it to.
+
+
+funcs=set_funcs('sys_rhs',Oscillatory2SS, 'sys_ntau',numberofdelays, ...
+'sys_deri',RHSderivative,'sys_tau',@Oscillatory2SSDelays,...
+'sys_dtau',@Oscillatory2SSDelayderivatives,'x_vectorized',false);
+
+
+%Notice we have false assigned to the label 'x_vectorized' because we have
+%not defined our right hand side function, Oscillatory2SS, with
+%vectorisation. 
+
+
+%If you did not want to define your own functions for the derivatives of
+%the right hand side and the delays, then your set_funcs would be written
+%like this:
+% funcs=set_funcs('sys_rhs',Oscillatory2SS,'sys_ntau',numberofdelays,...
+% ‘sys_tau',Oscillatory2SSDelays,'x_vectorized',false);
+
+%And then DDE-BIFTOOL would use the numerical approximations functions (as detail in sections 26, 31, and 32 of the Manual Help document) to calculate the required derivatives. 
