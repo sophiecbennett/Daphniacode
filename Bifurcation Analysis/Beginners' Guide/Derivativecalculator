@@ -1,0 +1,167 @@
+clear
+
+
+%J1 = J(t)
+%A1 = A(t)
+%J1 = J(t-tau2)
+%A1 = A(t-tau2)
+%J1 = J(t-(tau1+tau2))
+%A1 = A(t-(tau1+tau2))
+
+
+syms J1 A1 J2 A2 J3 A3 beta muj mua No tau1 tau2 V1 V2 V
+
+
+V=[V1;V2];
+
+
+u=(beta*A2*exp(-((J2+A2)/(No)))*exp(-mua*tau2))-(beta*A3*exp(-((J3+A3)/(No)))*exp(-mua*tau2)*exp(-muj*tau1))-(muj*J1);
+
+
+v=(beta*A3*exp(-((J3+A3)/(No)))*exp(-mua*tau2)*exp(-muj*tau1))-(mua*A1);
+
+
+% pure J and A derivatives 
+
+
+Jac1 = [diff(u,J1) diff(u,A1); diff(v,J1) diff(v,A1)];
+
+
+Jac2 = [diff(u,J2) diff(u,A2); diff(v,J2) diff(v,A2)];
+
+
+Jac3 = [diff(u,J3) diff(u,A3); diff(v,J3) diff(v,A3)];
+
+
+%pure parameter derivatives
+
+
+Jac4 = [diff(u,beta); diff(v,beta)];
+
+
+Jac5 = [diff(u,muj); diff(v,muj)];
+
+
+Jac6 = [diff(u,mua); diff(v,mua)];
+
+
+Jac7 = [diff(u,No); diff(v,No)];
+
+
+Jac8 = [diff(u,tau1); diff(v,tau1)];
+
+
+Jac9 = [diff(u,tau2); diff(v,tau2)];
+
+
+%take Jac 1 derivative wwith respect to each parameter
+
+
+Jac11 = [diff(diff(u,J1),beta) diff(diff(u,A1),beta); diff(diff(v,J1),beta) diff(diff(v,A1),beta)];
+
+
+Jac12 = [diff(diff(u,J1),muj) diff(diff(u,A1),muj); diff(diff(v,J1),muj) diff(diff(v,A1),muj)];
+
+
+Jac13 = [diff(diff(u,J1),mua) diff(diff(u,A1),mua); diff(diff(v,J1),mua) diff(diff(v,A1),mua)];
+
+
+Jac14 = [diff(diff(u,J1),No) diff(diff(u,A1),No); diff(diff(v,J1),No) diff(diff(v,A1),No)];
+
+
+Jac15 = [diff(diff(u,J1),tau1) diff(diff(u,A1),tau1); diff(diff(v,J1),tau1) diff(diff(v,A1),tau1)];
+
+
+Jac16 = [diff(diff(u,J1),tau2) diff(diff(u,A1),tau2); diff(diff(v,J1),tau2) diff(diff(v,A1),tau2)];
+
+
+%take Jac 2 derivative wwith respect to each parameter
+
+
+Jac18 = [diff(diff(u,J2),beta) diff(diff(u,A2),beta); diff(diff(v,J2),beta) diff(diff(v,A2),beta)];
+
+
+Jac19 = [diff(diff(u,J2),muj) diff(diff(u,A2),muj); diff(diff(v,J2),muj) diff(diff(v,A2),muj)];
+
+
+Jac20 = [diff(diff(u,J2),mua) diff(diff(u,A2),mua); diff(diff(v,J2),mua) diff(diff(v,A2),mua)];
+
+
+Jac21 = [diff(diff(u,J2),No) diff(diff(u,A2),No); diff(diff(v,J2),No) diff(diff(v,A2),No)];
+
+
+Jac22 = [diff(diff(u,J2),tau1) diff(diff(u,A2),tau1); diff(diff(v,J2),tau1) diff(diff(v,A2),tau1)];
+
+
+Jac23 = [diff(diff(u,J2),tau2) diff(diff(u,A2),tau2); diff(diff(v,J2),tau2) diff(diff(v,A2),tau2)];
+
+
+
+
+%take Jac 3 derivative wwith respect to each parameter
+
+
+Jac25 = [diff(diff(u,J3),beta) diff(diff(u,A3),beta); diff(diff(v,J3),beta) diff(diff(v,A3),beta)];
+
+
+Jac26 = [diff(diff(u,J3),muj) diff(diff(u,A3),muj); diff(diff(v,J3),muj) diff(diff(v,A3),muj)];
+
+
+Jac27 = [diff(diff(u,J3),mua) diff(diff(u,A3),mua); diff(diff(v,J3),mua) diff(diff(v,A3),mua)];
+
+
+Jac28 = [diff(diff(u,J3),No) diff(diff(u,A3),No); diff(diff(v,J3),No) diff(diff(v,A3),No)];
+
+
+Jac29 = [diff(diff(u,J3),tau1) diff(diff(u,A3),tau1); diff(diff(v,J3),tau1) diff(diff(v,A3),tau1)];
+
+
+Jac30 = [diff(diff(u,J3),tau2) diff(diff(u,A3),tau2); diff(diff(v,J3),tau2) diff(diff(v,A3),tau2)];
+
+
+%I need to multiply the results of the first order differentiation wwith a v variable    
+
+
+Jac1withv = [diff(u,J1) diff(u,A1); diff(v,J1) diff(v,A1)]*V;
+
+
+Jac2withv = [diff(u,J2) diff(u,A2); diff(v,J2) diff(v,A2)]*V;
+
+
+Jac3withv = [diff(u,J3) diff(u,A3); diff(v,J3) diff(v,A3)]*V;
+
+
+%take Jac1withv with respect to each of J and A across the delays 
+
+
+Jac32 = [diff(Jac1withv(1),J1) diff(Jac1withv(1),A1); diff(Jac1withv(2),J1) diff(Jac1withv(2),A1)];
+
+
+Jac33 = [diff(Jac1withv(1),J2) diff(Jac1withv(1),A2); diff(Jac1withv(2),J2) diff(Jac1withv(2),A2)];
+
+
+Jac34 = [diff(Jac1withv(1),J3) diff(Jac1withv(1),A3); diff(Jac1withv(2),J3) diff(Jac1withv(2),A3)];
+
+
+%take Jac2withv with respect to each of J and A across the delays 
+
+
+Jac35 = [diff(Jac2withv(1),J1) diff(Jac2withv(1),A1); diff(Jac2withv(2),J1) diff(Jac2withv(2),A1)];
+
+
+Jac36 = [diff(Jac2withv(1),J2) diff(Jac2withv(1),A2); diff(Jac2withv(2),J2) diff(Jac2withv(2),A2)];
+
+
+Jac37 = [diff(Jac2withv(1),J3) diff(Jac2withv(1),A3); diff(Jac2withv(2),J3) diff(Jac2withv(2),A3)];
+
+
+%take Jac3withv wwith respect to each of J and A across the delays 
+
+
+Jac38 = [diff(Jac3withv(1),J1) diff(Jac3withv(1),A1); diff(Jac3withv(2),J1) diff(Jac3withv(2),A1)];
+
+
+Jac39 = [diff(Jac3withv(1),J2) diff(Jac3withv(1),A2); diff(Jac3withv(2),J2) diff(Jac3withv(2),A2)];
+
+
+Jac40 = [diff(Jac3withv(1),J3) diff(Jac3withv(1),A3); diff(Jac3withv(2),J3) diff(Jac3withv(2),A3)];
