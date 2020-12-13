@@ -1,0 +1,12 @@
+O3SS=@(xx,par)[...
+(par(1)*xx(3,2)*exp(-((xx(1,2)+xx(2,2)+xx(3,2))/(par(5))))*exp(-(par(4)*par(8)))) - (par(1)*xx(3,3)*exp(-((xx(1,3)+xx(2,3)+xx(3,3))/(par(5))))*exp(-(par(4)*par(8)))*exp(-(par(7)*par(2))))-(par(2)*xx(1,1))
+      (par(1)*xx(3,3)*exp(-((xx(1,3)+xx(2,3)+xx(3,3))/(par(5))))*exp(-(par(4)*par(8)))*exp(-(par(7)*par(2)))) - (par(1)*xx(3,4)*exp(-((xx(1,4)+xx(2,4)+xx(3,4))/(par(5))))*exp(-(par(4)*par(8)))*exp(-(par(7)*par(2)))*exp(-(par(3)*(par(6)-par(7)))))-(par(3)*xx(2,1))
+      (par(1)*xx(3,4)*exp(-((xx(1,4)+xx(2,4)+xx(3,4))/(par(5))))*exp(-(par(4)*par(8)))*exp(-(par(7)*par(2)))*exp(-(par(3)*(par(6)-par(7)))))-(par(4)*xx(3,1))];
+
+
+drhs=@(xx,par,nx,np,v)O3SSrhsderivative(O3SS,xx,par,nx,np,v);
+
+
+funcs=set_funcs('sys_rhs',O3SS,'sys_tau',@O3SStaudefintion,...
+    'sys_ntau',@()3,'sys_deri',drhs,'sys_dtau',@O3SStauderivative,'x_vectorized',false) 
+%#ok<noPTS>
