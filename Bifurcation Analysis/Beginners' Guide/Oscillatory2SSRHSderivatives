@@ -1,0 +1,324 @@
+function J=Oscillatory2SSRHSderivatives(f,xx,par,nx,np,v)
+
+
+    %The structure of this function follows the exact same pattern as that
+    %of the delay derivative function Oscillatory2SSDelayderivatives, but there are a few %differences which we shall detail when relevant. 
+   
+    
+    %To calculate the derivatives in this function, my advice would be to
+    %create a separate file, create some code and calculate all the
+    %different derivatives using symbolic variables, and then copy and
+    %paste the results over into this function file. (I will send you the 
+    %code I created to calculate the derivatives as well).
+    
+    %You will see that for this function, in contrast to the function for the derivatives of the delays
+    %there is a third variable - v. This is only needed when you take the
+    %second derivative with respect to the dependent variables (explained
+    %further down). For the rest of the derivatives it remains empty.
+    
+    %The output of the function is a matrix J.
+    %We start off by initialising J as empty. 
+
+
+    J=[];
+
+
+if length(nx)==1 && isempty(np) && isempty(v)
+    
+     %We begin by considering differentiation of each equation in the 
+     %right hand side with respect to the dependent variables (only once) 
+     %across their various delayed states.
+     
+     %For this case, where we are looking at one derivative with respect to 
+     %the dependent variables only, for every differentiation with respect 
+     %to dependent variables in a given state, J is an nxn matrix where n is 
+     %the number of dependent variables. Across the rows of each matrix, 
+     %the thing you are differentiating remains constant (the thing being 
+     %an equation in your system), but the dependent variable you 
+     %differentiate with respect to changes across the columns (while the state of these variables %remains fixed). Each 
+     %row represents a different equation in your system being 
+     %differentiated. The actual value of nx tells us what form of the 
+     %dependent variables we are differentiating with respect to. 
+
+
+    if nx==0 %Derivatives of the right hand side with respect to the dependent variables not delayed
+        J(1,1) = -par(2); %This is the first equation diffed wrt J(t)
+        J(1,2) = 0; %This is the first equation diffed wrt A(t)
+        J(2,1) = 0; %This is the second equation diffed wrt J(t)
+        J(2,2) = -par(3); %This is the second equation diffed wrt A(t)
+elseif nx==1 %Derivatives of the right hand side with respect to the dependent variables with the first delay
+J(1,1) = -(xx(2,2)*par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4); %This is the first equation diffed wrt J(t-tau2)
+J(1,2) = par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)) - (xx(2,2)*par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4); %This is the first equation diffed wrt A(t-tau2)
+J(2,1) = 0; %This is the second equation diffed wrt J(t-tau2)
+J(2,2) = 0; %This is the second equation diffed wrt A(t-tau2)
+elseif nx==2 %Derivatives of the right hand side with respect to the dependent variables with the second delay
+J(1,1) = (xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);%This is the first equation diffed wrt J(t-(tau1+tau2))
+J(1,2) = (xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4) - par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5));%This is the first equation diffed wrt A(t-(tau1+tau2))
+J(2,1) = -(xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4); %This is the second equation diffed wrt J(t-(tau1+tau2))
+J(2,2) = par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)) - (xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);%This is the second equation diffed wrt A(t-(tau1+tau2)) 
+end
+
+
+elseif isempty(nx) && length(np)==1 && isempty(v)
+
+%We now consider differentiation of each equation in the right hand 
+%side with respect to each parameter only once.
+
+%For this case, where we are looking at we are looking at one 
+%derivative with respect to the parameter value only, for every 
+%differentiation with respect to each parameter, J is an nx1 matrix 
+%where n is the number of dependent variables. Each row represents a 
+%different equation in your system being differentiated. The actual 
+%value of np tells us what parameter we are differentiating with 
+%respect to. 
+
+
+if np==1 % Derivative wrt par(1)
+J(1,1) = xx(2,2)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)) - xx(2,3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5));
+J(2,1) = xx(2,3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5));
+elseif np==2 % Derivative wrt par(2)
+J(1,1) = xx(2,3)*par(1)*par(5)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)) - xx(1,1);
+J(2,1) = -xx(2,3)*par(1)*par(5)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5));
+elseif np==3 % Derivative wrt par(3)
+J(1,1) = xx(2,3)*par(1)*par(6)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)) - xx(2,2)*par(1)*par(6)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6));
+J(2,1) = - xx(2,1) - xx(2,3)*par(1)*par(6)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5));
+elseif np==4 % Derivative wrt par(4)
+J(1,1) = (xx(2,2)*par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6))*(xx(2,2) + xx(1,2)))/par(4)^2 - (xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5))*(xx(2,3) + xx(1,3)))/par(4)^2;
+J(2,1) = (xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5))*(xx(2,3) + xx(1,3)))/par(4)^2;
+elseif np==5 % Derivative wrt par(5)
+J(1,1) = xx(2,3)*par(1)*par(2)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5));
+J(2,1) = -xx(2,3)*par(1)*par(2)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5));
+elseif np==6 % Derivative wrt par(6)
+J(1,1) = xx(2,3)*par(1)*par(3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)) - xx(2,2)*par(1)*par(3)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6));
+J(2,1) = -xx(2,3)*par(1)*par(3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5));
+end
+
+
+elseif length(nx)==1 && length(np)==1 && isempty(v)
+
+%We now consider differentiation of each equation in the right hand 
+%side with respect to each dependent variable in each of its different
+%states, followed by the differentiation by each of the parameters. 
+
+%For the case where we are looking at two differentiations, the first 
+%with respect to the dependent variables and the second with respect 
+%to a parameter, for every combination of derivatives, J is a nxn 
+%matrix, where n is the number of dependent variables. The first row in the 
+%matrix represents the first equation in the system differentiated by 
+%the dependent variables in the system in the state specified 
+%and then differentiated again by the parameter specified. The 
+%second row in the matrix is the same thing just for the second 
+%equation in the system. It is like you are differentiating each of the
+%results from the first section of this function with respect to each
+%parameter.
+
+if nx==0 %Derivative of the right hand side with respect to the dependent variables not delayed
+if np==1 % Derivative wrt par(1)
+J(1,1) = 0;
+J(1,2) = 0;
+J(2,1) = 0;
+J(2,2) = 0;
+elseif np==2 % Derivative wrt par(2)
+J(1,1) = -1;
+J(1,2) = 0;
+J(2,1) = 0;
+J(2,2) = 0;
+elseif np==3 % Derivative wrt par(3)
+J(1,1) = 0; 
+J(1,2) = 0;
+J(2,1) = 0;
+J(2,2) = -1;
+elseif np==4 % Derivative wrt par(4)
+J(1,1) = 0;
+J(1,2) = 0;
+J(2,1) = 0;
+J(2,2) = 0;
+elseif np==5 % Derivative wrt par(5)
+J(1,1) = 0;
+J(1,2) = 0;
+J(2,1) = 0;
+J(2,2) = 0;
+elseif np==6 % Derivative wrt par(6)
+J(1,1) = 0;
+J(1,2) = 0;
+J(2,1) = 0;
+J(2,2) = 0;
+end 
+elseif nx==1 %Derivative of the right hand side with respect to the dependent variables with the first delay
+if np==1 % Derivative wrt par(1)
+J(1,1) = -(xx(2,2)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4);
+J(1,2) = exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)) - (xx(2,2)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4);
+J(2,1) = 0;
+J(2,2) = 0;
+elseif np==2 % Derivative wrt par(2)
+J(1,1) = 0;
+J(1,2) = 0;
+J(2,1) = 0;
+J(2,2) = 0;
+elseif np==3 % Derivative wrt par(3)
+J(1,1) = (xx(2,2)*par(1)*par(6)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4);
+J(1,2) = (xx(2,2)*par(1)*par(6)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4) - par(1)*par(6)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6));
+J(2,1) = 0;
+J(2,2) = 0;
+elseif np==4 % Derivative wrt par(4)
+J(1,1) = (xx(2,2)*par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4)^2 - (xx(2,2)*par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6))*(xx(2,2) + xx(1,2)))/par(4)^3 ;
+J(1,2) = (par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6))*(xx(2,2) + xx(1,2)))/par(4)^2 + (xx(2,2)*par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4)^2 - (xx(2,2)*par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6))*(xx(2,2) + xx(1,2)))/par(4)^3 ;
+J(2,1) = 0;
+J(2,2) = 0;
+elseif np==5 % Derivative wrt par(5)
+J(1,1) = 0;
+J(1,2) = 0;
+J(2,1) = 0;
+J(2,2) = 0;
+elseif np==6 % Derivative wrt par(6)
+J(1,1) = (xx(2,2)*par(1)*par(3)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4);
+J(1,2) = (xx(2,2)*par(1)*par(3)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4) - par(1)*par(3)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6));
+J(2,1) = 0;
+J(2,2) = 0;
+end
+elseif nx==2 %Derivative of the right hand side with respect to the dependent variables with the second delay
+if np==1 % Derivative wrt par(1)
+J(1,1) = (xx(2,3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(1,2) = (xx(2,3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4) - exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5));
+J(2,1) = -(xx(2,3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(2,2) = exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)) - (xx(2,3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+elseif np==2 % Derivative wrt par(2)
+J(1,1) = -(xx(2,3)*par(1)*par(5)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(1,2) = par(1)*par(5)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)) - (xx(2,3)*par(1)*par(5)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(2,1) = (xx(2,3)*par(1)*par(5)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(2,2) = (xx(2,3)*par(1)*par(5)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4) - par(1)*par(5)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5));
+elseif np==3 % Derivative wrt par(3)
+J(1,1) = -(xx(2,3)*par(1)*par(6)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(1,2) = par(1)*par(6)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)) - (xx(2,3)*par(1)*par(6)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(2,1) = (xx(2,3)*par(1)*par(6)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(2,2) = (xx(2,3)*par(1)*par(6)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4) - par(1)*par(6)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5));
+elseif np==4 % Derivative wrt par(4)
+J(1,1) = (xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5))*(xx(2,3) + xx(1,3)))/par(4)^3 - (xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4)^2;
+J(1,2) = (xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5))*(xx(2,3) + xx(1,3)))/par(4)^3 - (xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4)^2 - (par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5))*(xx(2,3) + xx(1,3)))/par(4)^2;
+J(2,1) = (xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4)^2 - (xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5))*(xx(2,3) + xx(1,3)))/par(4)^3;
+J(2,2) = (par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5))*(xx(2,3) + xx(1,3)))/par(4)^2 + (xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4)^2 - (xx(2,3)*par(1)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5))*(xx(2,3) + xx(1,3)))/par(4)^3;
+elseif np==5 % Derivative wrt par(5)
+J(1,1) = -(xx(2,3)*par(1)*par(2)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(1,2) = par(1)*par(2)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)) - (xx(2,3)*par(1)*par(2)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(2,1) = (xx(2,3)*par(1)*par(2)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(2,2) = (xx(2,3)*par(1)*par(2)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4) - par(1)*par(2)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5));
+elseif np==6 % Derivative wrt par(6)
+J(1,1) = -(xx(2,3)*par(1)*par(3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(1,2) = par(1)*par(3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)) - (xx(2,3)*par(1)*par(3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(2,1) = (xx(2,3)*par(1)*par(3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4);
+J(2,2) = (xx(2,3)*par(1)*par(3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4) - par(1)*par(3)*exp(-(xx(2,3) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5));
+end
+end
+
+elseif length(nx)==2 && isempty(np) && ~isempty(v)
+
+%We now consider differentiation of each equation in the right hand 
+%side with respect to each dependent variable in each of its different
+%states, followed by the differentiation of these derivatives again by 
+%each of the dependent variables in each of their different states. 
+
+
+%We consider the differentiation of each result from section 1 of 
+%this function in turn. For this case where we are 
+%looking at two differentiations with respect to the dependent 
+%variables, for every combination of derivatives, J is a nxn matrix 
+%where n is the number of dependent variables.
+
+%At the beginning of this function file I mentioned the extra variable
+%v. This is the (only) section of this function where this variable is
+%needed. The derivatives in this section are the derivatives of the
+%results of the first section (differentiation once with respect to 
+%dependent variables) with respect to the dependent variables. Before
+%we can perform the derivatives of this section, we must multiply
+%every result of the first section by a column vector 
+% v=[v(1) ; v(2);…;v(n)].
+% The number of rows of v is equal to the number of dependent variables. So
+% for example, for the first differentiation of the right hand side with
+% respect to the dependent variables not delayed (the first result of the first section of this %function we yield a 2x2 matrix
+% called J1 such that
+% J1 = [W X ; Y Z],
+%for expressions W, X, Y and Z. To be
+%able to perform a second differentiation of this result across the different states of the
+%dependent variables in this section, we must multiply J1 by the
+%vector v:
+% J1withV = [W X ; Y Z]*V,
+%You can see that the result of this multiplication is also a column
+%vector with 2 rows. We take the derivatives of the first row of this
+%vector with respect to our dependent variables in a given state forming the first row
+%of our nxn matrix result in this section, and then we take the derivatives of the second row 
+%of this vector with respect to our dependent variables forming the 
+%second row of our nxn matrix result in this section. 
+
+%This is how the vector v is declared in the demo codes. 
+
+n=size(xx,1);
+v=reshape(v,[n,1]);
+
+
+if nx(1)==0 % Consider the right hand side differentiated with respect to the dependent variables with no delay. 
+% Then multiply this result by V before continuing
+if nx(2)==0 % Differentiate with respect to the dependent variables with no delay
+J(1,1) = 0 ; %Differentiate first row with respect to J(t)
+J(1,2) = 0 ; %Differentiate first row with respect to A(t)
+J(2,1) = 0 ; %Differentiate second row with respect to J(t)
+J(2,2) = 0 ; %Differentiate second row with respect to A(t)
+elseif nx(2)==1 % Differentiate with respect to the dependent variables with first delay
+J(1,1) = 0 ; %Differentiate first row with respect to J(t-tau2)
+J(1,2) = 0 ; %Differentiate first row with respect to A(t-tau2)
+J(2,1) = 0 ; %Differentiate second row with respect to J(t-tau2)
+J(2,2) = 0 ; %Differentiate second row with respect to A(t-tau2)
+elseif nx(2)==2 % Differentiate with respect to the dependent variables with second delay
+J(1,1) = 0 ; %Differentiate first row with respect to J(t-(tau1+tau2))
+J(1,2) = 0 ; %Differentiate first row with respect to A(t-(tau1+tau2))
+J(2,1) = 0 ; %Differentiate second row with respect to J(t-(tau1+tau2))
+J(2,2) = 0 ; %Differentiate second row with respect to A(t-(tau1+tau2))
+end
+
+
+elseif nx(1)==1 % Consider the right hand side differentiated with respect to the dependent variables with first delay.
+% Then multiply this result by V before continuing
+if nx(2)==0 % Differentiate with respect to the dependent variables with no delay
+J(1,1) = 0; %Differentiate first row with respect to J(t)
+J(1,2) = 0; %Differentiate first row with respect to A(t)
+J(2,1) = 0; %Differentiate second row with respect to J(t)
+J(2,2) = 0; %Differentiate second row with respect to A(t)
+elseif nx(2)==1 % Differentiate with respect to the dependent variables with first delay
+J(1,1) = (xx(2,2)*v(1)*par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4)^2 - v(2)*((par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4) - (xx(2,2)*par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4)^2); %Differentiate first row with respect to J(t-tau2)
+J(1,2) = (xx(2,2)*v(1)*par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4)^2 - (v(1)*par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4) - v(2)*((2*par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4) - (xx(2,2)*par(1)*exp(-(xx(2,2) + xx(1,2))/par(4))*exp(-par(3)*par(6)))/par(4)^2); %Differentiate first row with respect to A(t-tau2)
+J(2,1) = 0 ; %Differentiate second row with respect to J(t-tau2)
+J(2,2) = 0 ; %Differentiate second row with respect to A(t-tau2)
+elseif nx(2)==2 % Differentiate with respect to the dependent variables with second delay
+J(1,1) = 0 ; %Differentiate first row with respect to J(t-(tau1+tau2))
+J(1,2) = 0 ; %Differentiate first row with respect to A(t-(tau1+tau2))
+J(2,1) = 0 ; %Differentiate second row with respect to J(t-(tau1+tau2))
+J(2,2) = 0 ; %Differentiate second row with respect to A(t-(tau1+tau2))
+end
+
+elseif nx(1)==2 % Consider the right hand side differentiated with respect to the dependent variables with second delay.
+% Then multiply this result by V before continuing
+if nx(2)==0 % Differentiate with respect to the dependent variables with no delay
+J(1,1) = 0 ; %Differentiate first row with respect to J(t)
+J(1,2) = 0 ; %Differentiate first row with respect to A(t)
+J(2,1) = 0 ; %Differentiate second row with respect to J(t)
+J(2,2) = 0 ; %Differentiate second row with respect to A(t)
+elseif nx(2)==1 % Differentiate with respect to the dependent variables with first delay
+J(1,1) = 0 ; %Differentiate first row with respect to J(t-tau2)
+J(1,2) = 0 ; %Differentiate first row with respect to A(t-tau2)
+J(2,1) = 0 ; %Differentiate second row with respect to J(t-tau2)
+J(2,2) = 0 ; %Differentiate second row with respect to A(t-tau2)
+elseif nx(2)==2 % second derivative wrt J(t-par(7)) and A(t-par(7))
+J(1,1) = v(2)*((par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4) - (xx(2,2)*par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4)^2) - (xx(2,2)*v(1)*par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4)^2; %Differentiate first row with respect to J(t-(tau1+tau2))
+J(1,2) = v(2)*((2*par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4) - (xx(2,2)*par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4)^2) + (v(1)*par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4) - (xx(2,2)*v(1)*par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4)^2; %Differentiate first row with respect to A(t-(tau1+tau2))
+J(2,1) = (xx(2,2)*v(1)*par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4)^2 - v(2)*((par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4) - (xx(2,2)*par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4)^2); %Differentiate second row with respect to J(t-(tau1+tau2))
+J(2,2) = (xx(2,2)*v(1)*par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4)^2 - (v(1)*par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4) - v(2)*((2*par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4) - (xx(2,2)*par(1)*exp(-(xx(2,2) + xx(1,3))/par(4))*exp(-par(3)*par(6))*exp(-par(2)*par(5)))/par(4)^2); %Differentiate second row with respect to A(t-(tau1+tau2)) 
+end
+end
+end
+
+
+% Raise error if the requested derivative does par(4)t exist
+if isempty(J)
+error(['SYS_DERI: requested derivative nx=%d, np=%d, size(v)=%d',...
+'could par(4)t be computed!'],nx,np,size(v));
+end
+end
