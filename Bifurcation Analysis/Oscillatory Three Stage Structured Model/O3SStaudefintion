@@ -1,0 +1,9 @@
+function tau=O3SStaudefintion(ind,xx,par) 
+    if ind ==1
+        tau=par(8); 
+    elseif ind ==2
+        tau=par(7)+ par(8);
+    elseif ind ==3
+        tau=par(6)+ par(8);
+    end 
+end
