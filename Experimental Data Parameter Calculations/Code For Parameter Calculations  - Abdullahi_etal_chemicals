@@ -1,0 +1,101 @@
+clear 
+
+
+Timeofbirths = readmatrix('Abdullahi_et_al - 0_1','Range','J4:K29');
+
+
+% Timeofbirths2 = readmatrix('Abdullahi_et_al - 0_1','Range','D4:K4');
+
+
+Numberofbirths = readmatrix('Abdullahi_et_al - 0_1','Range','N4:O29');
+% 
+% Numberofbirths2 = readmatrix('Abdullahi_et_al - 0_1','Range','T4:AA4');
+
+
+Totalbirths=zeros(26,2);
+
+
+for i=1:26
+    
+    Totalbirths(i,1:end)=cumsum(Numberofbirths(i,1:end));
+    
+end
+
+
+Gestationperiod=readmatrix('Abdullahi_et_al - 0_1','Range','L4:M29');
+
+
+Averagegestationperiod=zeros(26,1);
+
+
+for i=1:26
+    
+    Averagegestationperiod(i,1)=mean(Gestationperiod(i,1:end));
+    
+end
+
+
+coefficients=zeros(26,2);
+
+
+for i=1:26
+    
+    coefficients(i,1:2) = polyfit(Timeofbirths(i,1:end), Totalbirths(i,1:end), 1);
+    
+end
+
+
+yFit=zeros(26,2);
+
+
+for i=1:26
+    
+yFit(i,1:2) = polyval(coefficients(i,1:2), Timeofbirths(i,1:2), 1);
+
+end
+
+
+% for i=1:26
+% 
+% plot(Timeofbirths(i,1:2), yFit(i,1:2))
+% 
+% hold on
+% 
+% plot(Timeofbirths(i,1:2),Totalbirths(i,1:2))
+% end 
+% 
+% hold off
+% % % 
+% % % plot(Timeofbirths1, yFit1, 'Color','b');
+% % % 
+% % % hold on 
+% % % 
+% % % plot(Timeofbirths2, yFit2,'Color','m');
+% % % 
+% % % plot(Timeofbirths1,Totalbirths1,'o','Color','b')
+% % % 
+% % % plot(Timeofbirths2,Totalbirths2,'o','Color','m')
+% % % 
+% % % hold off
+% % % 
+% % % grid on
+% % % 
+% % % Legend1 = sprintf('Generation 1 with gradient %f',coefficients1(1));
+% % % 
+% % % Legend2 = sprintf('Generation 2 with gradient %f',coefficients2(1));
+% % % 
+% % % legend(Legend1,Legend2,'Fontsize',6);
+% % % 
+% % % title('Toyota: Birth rate calculations for genotype ID 0_1')
+% % % 
+% % % xlabel('Time from start of experiment (days)')
+% % % 
+% % % ylabel('Number of Daphnia (number)')
+% % % 
+Birthrates=coefficients(1:26,1);
+
+
+Maturationperiods=readmatrix('Abdullahi_et_al - 0_1','Range','H4:H29');
+
+
+Averagegestations=[Averagegestationperiod(1:26,1)];
