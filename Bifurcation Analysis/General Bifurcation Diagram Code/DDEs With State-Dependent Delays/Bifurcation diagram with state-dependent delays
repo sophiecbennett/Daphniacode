@@ -199,7 +199,7 @@ for i=1:numberofsuccessfulhopfsNT
     
 end
 
-ststT_branch0 = SetupStst(funcs,'x',[0;0],'parameter',ststT.parameter,...
+ststT_branch0 = SetupStst(funcs,'x',sterT,'parameter',ststT.parameter,...
     'contpar',contpar,'newheuristics_tests',0,parameterbd{:});
 
 ststT_branch0.method.continuation.plot=0;
